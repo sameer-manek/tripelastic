@@ -1,0 +1,11 @@
+.login-box {
+	display: block;
+	width: 500px;
+	margin: 0 auto;
+}
+
+.error {
+	color: red;
+	font-style: normal;
+	font-size: 13px
+}

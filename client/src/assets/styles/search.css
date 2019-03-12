@@ -1,0 +1,28 @@
+form input[type=text] {
+  border: 1px solid grey;
+  border-radius: 0;
+  float: left;
+  border-radius: none;
+  
+}
+
+form input[type=text]:focus {
+	outline: 0 !important;
+	border: 1px solid grey;
+}
+
+form button img{
+	margin-top: 5px;
+	width: auto;
+	height: 30px;
+}
+
+form button:hover {
+  background: #0b7dda;
+}
+
+form::after {
+  content: "";
+  clear: both;
+  display: table;
+}
