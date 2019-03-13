@@ -24,6 +24,8 @@ class Containers extends Component {
 		this.state = {
 			containers: []
 		}
+
+		this.deleteContainer = this.deleteContainer.bind(this)
 	}
 
 	componentWillReceiveProps(newProps) {
@@ -36,6 +38,10 @@ class Containers extends Component {
 		padding: "50px 0"
 	}
 
+	deleteContainer(id) {
+		console.log("deleting container")	
+	}
+
 	render() {
 		return (
 			<div style={this.marginStyle}>
@@ -44,6 +50,7 @@ class Containers extends Component {
 						<Container 
 							key={container.id}
 							data={container}
+							deleteContainer={this.deleteContainer}
 						/>
 					)
 				})}
