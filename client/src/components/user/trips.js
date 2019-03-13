@@ -3,11 +3,12 @@ import { Redirect } from 'react-router-dom'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import {  } from '../../actions/container-actions'
+import { fetchContainers } from '../../actions/container-actions'
 
 import Bar from './bar'
 import { TripsMenu } from './menus'
 import SearchComponent from './containers/SearchComponent'
+import Containers from './containers/Containers'
 
 
 function mapStateToProps(state) {
@@ -18,7 +19,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-	return bindActionCreators({  }, dispatch)
+	return bindActionCreators({ fetchContainers }, dispatch)
 }
 
 class Trips extends Component {
@@ -41,8 +42,7 @@ class Trips extends Component {
 	}
 
 	componentDidMount() {
-		// loading the user's containers in store
-		console.log(this.props)
+		this.props.fetchContainers(sessionStorage.token)
 	}
 
 	render() {
@@ -54,11 +54,14 @@ class Trips extends Component {
 					<div className="column is-one-quarter">
 						<TripsMenu toggle={this.toggleSelected} />
 					</div>
-					<SearchComponent />
+					<div className="column is-three-quarters">
+						<SearchComponent />
+						<Containers />
+					</div>
 				</div>
 			</div>
 		)
 	}
 }
 
-export default connect(mapStateToProps)(Trips)
+export default connect(mapStateToProps, mapDispatchToProps)(Trips)

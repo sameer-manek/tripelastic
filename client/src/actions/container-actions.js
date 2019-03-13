@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const URL = 'http://localhost:4000/api'
 
-export const fetchContainers = async function (token) {
+export const fetchContainers = function (token) {
 	console.log("action is called")
 	let query = `query {
 		myContainers(token: "` + token + `") {
@@ -14,17 +14,25 @@ export const fetchContainers = async function (token) {
 		}
 	}`
 
-	return await axios({
-		url: URL,
-		method: "post",
-		data: {
-			query
-		}
-	}).then(({ data }) => {
-		data = data.data.myContainers
-		return {
-			type: "FETCH_USER_CONTAINERS",
-			payload: data
-		}
-	}).catch(err => console.log(err))
+	return async dispatch => { 
+		await axios({
+			url: URL,
+			method: "post",
+			data: {
+				query
+			}
+		}).then(({ data }) => {
+			data = data.data.myContainers
+			console.log(data)
+			dispatch ({
+				type: "FETCH_USER_CONTAINERS",
+				payload: data
+			})
+		}).catch(function(err) {
+			dispatch({
+				type: "ERROR",
+				payload: err
+			})
+		})
+	}
 }

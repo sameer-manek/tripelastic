@@ -25,10 +25,10 @@ class SearchComponent extends Component {
 
 	render() {
 		return (
-			<div className="column is-three-quarters" >
+			<div>
 				<form className="form">
 					<p className="control has-icons-right" style={this.boxContainerStyle}>
-						<input type="text" className="input" placeholder="Search trips and containers .." style={this.searchBoxStyle} />
+						<input type="text" className="input search" placeholder="Search trips and containers .." style={this.searchBoxStyle} />
 						<span className="icon is-right">
 							<i className="lnr lnr-magnifier" style={this.iconStyle}></i>
 						</span>
