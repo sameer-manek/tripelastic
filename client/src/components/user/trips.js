@@ -14,7 +14,7 @@ import Containers from './containers/Containers'
 function mapStateToProps(state) {
 	return {
 		user: state.user,
-		containers: state.containers
+		containers: state.containers,
 	}
 }
 
@@ -64,7 +64,7 @@ class Trips extends Component {
 	}
 
 	render() {
-		let containerSpace = this.state.searching === true ? <h2 className="subtitle">searching..</h2> : <Containers searchQuery={this.state.search} />
+		let containerSpace = this.state.searching === true ? <h2 className="subtitle">searching..</h2> : <Containers searchQuery={this.state.search} category={this.state.selected} />
 		return (
 			<div className="container">
 				<Bar />

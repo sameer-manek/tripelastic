@@ -2,19 +2,14 @@ import React, { Component } from 'react'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import {  } from '../../../actions/container-actions'
 
 import Container from './Container'
 
 function mapStateToProps(state) {
 	return {
 		user: state.user,
-		containers: state.containers
+		containers: state.containers,
 	}
-}
-
-function mapDispatchToProps(dispatch) {
-	return bindActionCreators({  }, dispatch)
 }
 
 class Containers extends Component {
@@ -23,6 +18,7 @@ class Containers extends Component {
 
 		this.state = {
 			containers: [],
+			category: "all"
 		}
 
 		this.deleteContainer = this.deleteContainer.bind(this)
@@ -31,7 +27,13 @@ class Containers extends Component {
 	componentWillReceiveProps(newProps) {
 		this.setState({
 			containers: newProps.containers.filter(({ name }) => {
-				return name.startsWith(newProps.searchQuery)
+				let result = name.startsWith(newProps.searchQuery)
+				if(this.state.category !== "all") {
+					return result.filter(({ category }) => {
+						return category === this.state.category
+					})
+				}
+				return result
 			})
 		})
 	}
@@ -61,5 +63,5 @@ class Containers extends Component {
 	}
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Containers)
+export default connect(mapStateToProps)(Containers)
 

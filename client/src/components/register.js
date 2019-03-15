@@ -15,6 +15,7 @@ export default class RegisterComponent extends Component {
 			username: "",
 			email: "",
 			password: "",
+			confirm: "",
 			error: {
 				state: false,
 				username: null,
@@ -22,6 +23,28 @@ export default class RegisterComponent extends Component {
 				email: null
 			}
 
+		}
+	}
+
+	handleInputEnvent(e) {
+		switch(e.target.id) {
+			case: "username":
+				if (e.target.value !== this.state.username) {
+					this.state
+				}
+			break
+
+			case: "email":
+			break
+
+			case: "password":
+			break
+
+			case: "confirm":
+			break
+
+			default:
+			break
 		}
 	}
 
@@ -45,7 +68,7 @@ export default class RegisterComponent extends Component {
 						<div className="control">
 							<label className="label">Email</label>
 							<div className="field">
-								<input type="text" id="username" className="input"/>
+								<input type="email" id="email" className="input"/>
 								<br/>
 								<i className="error"></i>
 							</div>
@@ -63,7 +86,7 @@ export default class RegisterComponent extends Component {
 						<div className="control">
 							<label className="label">Confirm Password</label>
 							<div className="field">
-								<input type="password" id="username" className="input"/>
+								<input type="password" id="confirm" className="input"/>
 								<br/>
 								<i className="error"></i>
 							</div>
