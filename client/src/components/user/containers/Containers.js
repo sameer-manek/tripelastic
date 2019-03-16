@@ -22,7 +22,7 @@ class Containers extends Component {
 		super(props)
 
 		this.state = {
-			containers: []
+			containers: [],
 		}
 
 		this.deleteContainer = this.deleteContainer.bind(this)
@@ -30,7 +30,9 @@ class Containers extends Component {
 
 	componentWillReceiveProps(newProps) {
 		this.setState({
-			containers: newProps.containers
+			containers: newProps.containers.filter(({ name }) => {
+				return name.startsWith(newProps.searchQuery)
+			})
 		})
 	}
 

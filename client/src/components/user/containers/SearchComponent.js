@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 
+
+
 import styles from '../../../assets/styles/search.css'
 
 class SearchComponent extends Component {
@@ -28,7 +30,7 @@ class SearchComponent extends Component {
 			<div>
 				<form className="form">
 					<p className="control has-icons-right" style={this.boxContainerStyle}>
-						<input type="text" className="input search" placeholder="Search trips and containers by name .." style={this.searchBoxStyle} />
+						<input type="text" className="input search" placeholder="Search trips and containers.." style={this.searchBoxStyle} onChange={this.props.handleSearch} />
 						<span className="icon is-right">
 							<i className="lnr lnr-magnifier" style={this.iconStyle}></i>
 						</span>

@@ -27,13 +27,16 @@ class Trips extends Component {
 		super(props)
 
 		this.state = {
-			selected: "all"
+			selected: "all",
+			search: "",
+			searching: false
 		}
 
 		this.toggleSelected = this.toggleSelected.bind(this)
+		this.handleSearchEvent = this.handleSearchEvent.bind(this)
 	}
 
-	toggleSelected = function(newSelection) {
+	toggleSelected = function (newSelection) {
 		if(this.state.selected !== newSelection) {
 			this.setState({
 				selected: newSelection
@@ -41,11 +44,27 @@ class Trips extends Component {
 		}
 	}
 
+	handleSearchEvent = function (e) {
+		console.log("searching..")
+		this.setState({
+			searching: true
+		})
+		if (e.target.value !== this.state.search) {
+			this.setState({
+				search: e.target.value
+			})
+		}
+		this.setState({
+			searching: false
+		})
+	}
+
 	componentDidMount() {
 		this.props.fetchContainers(sessionStorage.token)
 	}
 
 	render() {
+		let containerSpace = this.state.searching === true ? <h2 className="subtitle">searching..</h2> : <Containers searchQuery={this.state.search} />
 		return (
 			<div className="container">
 				<Bar />
@@ -55,8 +74,10 @@ class Trips extends Component {
 						<TripsMenu toggle={this.toggleSelected} />
 					</div>
 					<div className="column is-three-quarters">
-						<SearchComponent />
-						<Containers />
+						<SearchComponent
+							handleSearch={this.handleSearchEvent}
+						/>
+						{containerSpace}
 					</div>
 				</div>
 			</div>
