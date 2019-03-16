@@ -36,3 +36,29 @@ export const fetchContainers = function (token) {
 		})
 	}
 }
+
+export const deleteContainer = function (token, containerId) {
+	let query = `mutation {
+	  deleteContainer(token: "`+ token +`", containerId: "`+ containerId +`") {
+	    success
+	    message
+	  }
+	}`
+
+	return async dispatch => {
+		await axios({
+			url: URL,
+			method: "post",
+			data: {
+				query
+			}
+		}).then(({data}) => {
+			data = data.data.deleteContainer
+
+			dispatch({
+				type: "DELETE_CONTAINER",
+				payload: containerId
+			})
+		}).catch(err => console.log(err))
+	}
+}

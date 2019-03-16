@@ -14,14 +14,14 @@ export function HeroComponent() {
 							<h3 className="subtitle">A custom trip planner</h3>
 						</div>
 						<ul className="level">
-							<li>
-								<Link to="/login" className="button is-small is-warning">Login</Link>
+							<li className="bar-list">
+								<Link to="/login" className="link">Login</Link>
 							</li>
-							<li>
-								<Link to="/register" className="button is-small is-success">Register</Link>
+							<li className="bar-list">
+								<Link to="/register" className="link">Register</Link>
 							</li>
-							<li>
-								<Link to="/" className="button is-small is-info">About us</Link>
+							<li className="bar-list">
+								<Link to="/" className="link">About Tripelastic</Link>
 							</li>
 						</ul>
 					</div>

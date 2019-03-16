@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import {  } from '../../../actions/container-actions'
+import { deleteContainer } from '../../../actions/container-actions'
 
 import Container from './Container'
 
@@ -14,7 +14,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-	return bindActionCreators({  }, dispatch)
+	return bindActionCreators({ deleteContainer }, dispatch)
 }
 
 class Containers extends Component {
@@ -39,7 +39,7 @@ class Containers extends Component {
 	}
 
 	deleteContainer(id) {
-		console.log("deleting container")	
+		this.props.deleteContainer(sessionStorage.token, id)	
 	}
 
 	render() {

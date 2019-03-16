@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/sameer-manek/te/issues"
   },
-  "homepage": "https://github.com/sameer-manek/te#readme"
+  "homepage": "https://github.com/sameer-manek/te#readme",
+  "dependencies": {
+    "nodemailer": "^5.1.1"
+  }
 }

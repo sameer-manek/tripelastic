@@ -21,7 +21,7 @@ class Container extends Component {
 						{this.props.data.name} <i style={{fontWeight: "normal", color: "grey"}}>({this.props.data.category})</i>
 					</Link>
 
-					<a href="#" className="card-header-icon" aria-label="more options">
+					<a href="#" className="card-header-icon" aria-label="more options" onClick={() => this.props.deleteContainer(this.props.data.id)}>
 				    	<span className="icon">
 				        	<i className="lnr lnr-trash" style={{color: "red"}} aria-hidden="true" title="Delete"></i>
 				    	</span>

@@ -7,7 +7,7 @@ const userSchema = new Schema({
 	lastname: { type: String, trim: true },
 	email: { type: String, unique: true, required: true, trim: true },
 	password: { type: String, required: true },
-	phone: { type: String, unique:true, trim: true },
+	phone: { type: String, unique:false, trim: true, default: null },
 	emailVerified: { type: Boolean, default: false },
 	phoneVerified: { type: Boolean, default: false },
 	photo: { type: String, default: "//cdn1.iconfinder.com/data/icons/navigation-elements/512/user-login-man-human-body-mobile-person-512.png" }

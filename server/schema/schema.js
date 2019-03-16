@@ -1,5 +1,16 @@
 const graphql = require('graphql')
 const _ = require('lodash')
+const mailer = require('nodemailer')
+
+// mailer configuration
+
+const transporter = mailer.createTransport({
+	service: "gmail",
+	auth: {
+		user: "tripelastic@gmail.com",
+		pass: "_Axiom_9809"
+	}
+})
 
 const jwt = require('jsonwebtoken')
 const { privateKey } = require("../config")
@@ -79,6 +90,55 @@ const RootQuery = new GraphQLObjectType({
 			}
 		},
 
+		verifyEmail: {
+			type: ActionType,
+			args: { token: { type: GraphQLString } },
+			resolve: async function (parent, args) {
+				let data = jwt.verify(args.token, privateKey)
+				if(data) {
+					let user = await User.findById(data.id)
+					if(user) {
+						let email = await user.email
+						console.log(email)
+						let token = jwt.sign({ email }, privateKey, { expiresIn: '48h' })
+						// send email
+						let mailOptions = {
+							from: "tripelastic@gmail.com",
+							to: email,
+							subject: "[DO NOT REPLY] verify your Email",
+							html: `<h1>Hey,</h1>
+									<p>Thanks being a part of tripelastic community. Inorder to use our services, we require you to click on the link below and verify this email.</p>
+									<br />
+									<a href="http://localhost:4000/verification?type=email&token=`+ token +`>click here</a>
+									<br />
+									<p>Note that you must do this in next 48 hours, else you will have to generate new link. which can be easily done from contact section of your profile.</p>`
+						}
+
+						await transporter.sendMail(mailOptions, (err, info) => {
+							if (err) {
+								console.log(err)
+							} else {
+								console.log(info)
+							}
+						})
+
+						return {
+							success: true,
+							message: "verification link has been sent to your email. The link will be valid until 48 hours"
+						}
+					}
+					return {
+						success: false,
+						message: "user not found"
+					}
+				}
+				return {
+					success: false,
+					message: "cannot authenticate"
+				}
+			}
+		},
+
 		// fetch all containers of logged in user
 		myContainers: {
 			type: GraphQLList(ContainerType),
@@ -130,14 +190,36 @@ const Mutation = new GraphQLObjectType({
 				email: {type: new GraphQLNonNull(GraphQLString)},
 				password: {type: new GraphQLNonNull(GraphQLString)}
 			},
-			resolve: function(parent, args) {
+			resolve: async function(parent, args) {
 				let user = new User({
 					username: args.username,
 					email: args.email,
 					password: args.password
 				})
 
-				return user.save()
+				let token = await jwt.sign({ email: args.email }, privateKey, { expiresIn: '48h' })
+
+				// send email
+				let mailOptions = {
+					from: "tripelastic@gmail.com",
+					to: args.email,
+					subject: "[DO NOT REPLY] verify your Email",
+					html: `<h1>Hey,</h1>
+							<p>Thanks being a part of tripelastic community. Inorder to use our services, we require you to <a href="http://localhost:4000/verification?type=email&token=`+ token +`>click here</a> and verify this email.</p>
+							<p>Note that you must do this in next 48 hours, else you will have to generate new link. which can be easily done from contact section of your profile.</p>`
+				}
+
+				let commit = user.save()
+
+				await transporter.sendMail(mailOptions, (err, info) => {
+					if (error) {
+						console.log(error)
+					} else {
+						console.log(info)
+					}
+				})
+
+				return commit
 			}
 		},
 
@@ -277,23 +359,29 @@ const Mutation = new GraphQLObjectType({
 				containerId: { type: new GraphQLNonNull(GraphQLString) }
 			},
 			resolve: async function(parent, args) {
-				let data = jwt.verify(token, privateKey)
+				let data = jwt.verify(args.token, privateKey)
 				if (!data) {
 					return {
 						success: false,
 						message: "could not authenticate user"
 					}
 				}
-				await Container.deleteOne({ id: args.containerId }, function (err) {
-					console.log(err)
+				let container = await Container.findById(args.containerId).catch(err => {
 					return {
 						success: false,
-						message: "some error occurred, please report admin"
+						message: "container not found"
 					}
 				})
-				return {
+				if(container && container.userId.toString() === data.id) {
+					container.remove()
+					return {
 					success: true,
 					message: "container has been deleted"
+				}
+				}
+				return {
+					success: false,
+					message: "container could not be deleted"
 				}
 			}
 		}
