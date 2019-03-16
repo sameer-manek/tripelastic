@@ -2,10 +2,7 @@ import React, { Component } from 'react'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-<<<<<<< HEAD
 import { deleteContainer } from '../../../actions/container-actions'
-=======
->>>>>>> d2e6dd44aff76330ea602d9d942445ab2fb4d03f
 
 import Container from './Container'
 
@@ -15,14 +12,9 @@ function mapStateToProps(state) {
 		containers: state.containers,
 	}
 }
-
-<<<<<<< HEAD
 function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ deleteContainer }, dispatch)
 }
-
-=======
->>>>>>> d2e6dd44aff76330ea602d9d942445ab2fb4d03f
 class Containers extends Component {
 	constructor(props) {
 		super(props)

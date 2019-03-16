@@ -149,6 +149,7 @@ class RegisterComponent extends Component {
 					}
 			})
 		})
+	}
 
 	render() {
 		if(this.props.user.loggedIn === true) {
