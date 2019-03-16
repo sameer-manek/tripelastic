@@ -80,7 +80,6 @@ class RegisterComponent extends Component {
 
 		}
 	}
-
 	async handleClickEvent(e) {
 		e.preventDefault()
 		this.setState({
@@ -150,8 +149,6 @@ class RegisterComponent extends Component {
 					}
 			})
 		})
-
-	}
 
 	render() {
 		if(this.props.user.loggedIn === true) {
