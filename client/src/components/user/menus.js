@@ -43,7 +43,7 @@ export const TripsMenu = function (props) {
 					<a onClick={() => props.toggle("blueprints")} className="has-icon"><i className="icon lnr lnr-map" style={{ color: blue, fontWeight: "900" }}></i> Blueprints</a>
 				</li>
 				<li>
-					<a onClick={() => props.toggle("blueprints")} className="has-icon"><i className="icon lnr lnr-plus-circle" style={{ color: "limegreen", fontWeight: "900" }}></i> new container</a>
+					<a onClick={() => props.toggle("create")} className="has-icon"><i className="icon lnr lnr-plus-circle" style={{ color: "limegreen", fontWeight: "900" }}></i> new container</a>
 				</li>
 			</ul>
 		</aside>

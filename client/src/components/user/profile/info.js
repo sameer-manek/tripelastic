@@ -12,6 +12,10 @@ function mapStateToProps(state) {
 	})
 }
 
+function mapDispatchToProps (dispatch) {
+	return bindActionCreators({ userDetails }, dispatch)
+}
+
 class InfoFormComponent extends Component {
 	constructor(props) {
 		super(props)
@@ -106,4 +110,4 @@ class InfoFormComponent extends Component {
 	}
 }
 
-export default connect(mapStateToProps)(InfoFormComponent)
+export default connect(mapStateToProps, mapDispatchToProps)(InfoFormComponent)

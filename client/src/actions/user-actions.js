@@ -101,6 +101,7 @@ export const userLogout = function() {
 export function calloutAction() {
 
 	if(sessionStorage.username && sessionStorage.token){
+		// verify token
 		return {
 			type: "USER_RESEAT",
 			payload: {

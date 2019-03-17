@@ -9,6 +9,7 @@ import Bar from './bar'
 import { TripsMenu } from './menus'
 import SearchComponent from './containers/SearchComponent'
 import Containers from './containers/Containers'
+import CreateContainer from './containers/CreateContainer'
 
 
 function mapStateToProps(state) {
@@ -29,7 +30,8 @@ class Trips extends Component {
 		this.state = {
 			selected: "all",
 			search: "",
-			searching: false
+			searching: false,
+			inherit: null
 		}
 
 		this.toggleSelected = this.toggleSelected.bind(this)
@@ -64,7 +66,19 @@ class Trips extends Component {
 	}
 
 	render() {
+		
+		let searchComponent
+
+		if(this.state.selected !== "create") {
+			searchComponent = <SearchComponent handleSearch={this.handleSearchEvent} />
+		} else {
+			searchComponent = null
+		}
+
 		let containerSpace = this.state.searching === true ? <h2 className="subtitle">searching..</h2> : <Containers searchQuery={this.state.search} category={this.state.selected} />
+		if (this.state.selected === "create") {
+			containerSpace = <CreateContainer inherit={this.state.inherit} />
+		}
 		return (
 			<div className="container">
 				<Bar />
@@ -74,9 +88,7 @@ class Trips extends Component {
 						<TripsMenu toggle={this.toggleSelected} />
 					</div>
 					<div className="column is-three-quarters">
-						<SearchComponent
-							handleSearch={this.handleSearchEvent}
-						/>
+						{searchComponent}
 						{containerSpace}
 					</div>
 				</div>
