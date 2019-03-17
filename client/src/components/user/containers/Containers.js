@@ -12,9 +12,11 @@ function mapStateToProps(state) {
 		containers: state.containers,
 	}
 }
+
 function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ deleteContainer }, dispatch)
 }
+
 class Containers extends Component {
 	constructor(props) {
 		super(props)
@@ -28,8 +30,15 @@ class Containers extends Component {
 	}
 
 	componentWillReceiveProps(newProps) {
+		// convert object '{}' to array '[]'
+		let obj = newProps.containers
+		let containers = Object.keys(obj).map(function(key) {
+			return [key, obj[key]]
+		})
+
+		// filter containers based on category selected
 		this.setState({
-			containers: newProps.containers.filter(({ name }) => {
+			containers: containers === {} ? [] : containers.filter(({ name }) => {
 				let result = name.startsWith(newProps.searchQuery)
 				if(this.state.category !== "all") {
 					return result.filter(({ category }) => {

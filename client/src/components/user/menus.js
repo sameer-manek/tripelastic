@@ -12,13 +12,13 @@ export const ProfileMenu = function(props) {
 
 			<ul className="menu-list">
 				<li>
-					<a onClick={() => props.toggle("info")}>User Info</a>
+					<a onClick={() => props.toggle("info")} className="has-icon"><i className="icon lnr lnr-paperclip" style={{ color: "skyblue", fontWeight: "900" }}></i> User Info</a>
 				</li>
 				<li>
-					<a onClick={() => props.toggle("contact")}>Contact Info</a>
+					<a onClick={() => props.toggle("contact")} className="has-icon"><i className="icon lnr lnr-laptop-phone" style={{ color: "limegreen", fontWeight: "900" }}></i> Contact Info</a>
 				</li>
 				<li>
-					<a onClick={() => props.toggle("password")}>Change Password</a>
+					<a onClick={() => props.toggle("password")} className="has-icon"><i className="icon lnr lnr-lock" style={{ color: "red", fontWeight: "900" }}></i> Change Password</a>
 				</li>
 			</ul>
 		</aside>

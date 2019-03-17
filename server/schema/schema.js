@@ -61,7 +61,7 @@ const RootQuery = new GraphQLObjectType({
 					return {
 						success: true,
 						message: "found user",
-						token: jwt.sign({ id: user.id }, privateKey, { expiresIn: '6h' }),
+						token: jwt.sign({ id: user.id }, privateKey, {}),
 						username: user.username
 					}
 				} else {
