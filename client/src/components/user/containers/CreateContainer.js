@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 
+import axios from 'axios'
+
 class CreateContainer extends Component {
 	constructor(props) {
 		super(props)
@@ -10,9 +12,14 @@ class CreateContainer extends Component {
 			start: "",
 			end: "",
 			category: "trip",
+			error: {
+				state: false,
+				message: ""
+			}
 		}
 
 		this.handleInputEvent = this.handleInputEvent.bind(this)
+		this.handleClickEvent = this.handleClickEvent.bind(this)
 	}
 
 	handleInputEvent(e) {
@@ -46,14 +53,53 @@ class CreateContainer extends Component {
 					category: e.target.value
 				})
 			break
+
+			default: 
+			break
 		}
 	}
 
+	async handleClickEvent(e) {
+		e.preventDefault()
+
+		if (this.state.name == "", this.state.detail == "") {
+			return this.setState({
+				error: {
+					state: true,
+					message: "name and detail fields are mandatory"
+				}
+			})
+		}
+
+		let query = `mutation {
+			createContainer (token: "`+ sessionStorage.token +`", name: "`+ this.state.name +`", detail:"`+ this.state.detail +`", parentContainer: "`+ this.props.inherit +`", start: "`+ this.state.start +`", end: "`+ this.state.end +`", category: "`+ this.state.category +`"){
+				id
+			}
+		}`
+
+		console.log(query)
+
+		return await axios({
+			url: "http://localhost:4000/api",
+			method: "post",
+			data: {
+				query
+			}
+		}).then(({ data }) => {
+			console.log("ADDED CONTAINER", data)
+		}).catch(err => console.log(err))
+	}
+
 	render() {
+		let error
+		if (this.state.error.state === true) {
+			error = <div className="message is-danger">{this.state.error.message}</div>
+		}
 		return (
 			<div>
 				<h1 className="subtitle">Create new trip container</h1>
 				<form>
+					{error}
 					<div className="control">
 						<label htmlFor="" className="label">Name</label>
 						<div className="field">
@@ -93,7 +139,7 @@ class CreateContainer extends Component {
 					</div>
 					<br/>
 
-					<button className="button is-info">Create Container</button>
+					<button type="submit" onClick={this.handleClickEvent} className="button is-info">Create Container</button>
 				</form>
 			</div>
 		)

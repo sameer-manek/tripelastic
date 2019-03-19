@@ -306,7 +306,7 @@ const Mutation = new GraphQLObjectType({
 					let newContainer = new Container({
 						name: args.name,
 						userId: id,
-						parentContainer: args.parentContainer ? args.parentContainer : null,
+						parentContainer: args.parentContainer === "null" ? null : args.parentContainer,
 						detail: args.detail,
 						start: args.start ? args.start : null,
 						end: args.end ? args.end : null,

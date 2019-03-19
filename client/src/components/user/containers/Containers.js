@@ -29,25 +29,22 @@ class Containers extends Component {
 		this.deleteContainer = this.deleteContainer.bind(this)
 	}
 
-	componentWillReceiveProps(newProps) {
-		// convert object '{}' to array '[]'
-		let obj = newProps.containers
-		let containers = Object.keys(obj).map(function(key) {
-			return [key, obj[key]]
-		})
-
-		// filter containers based on category selected
-		this.setState({
-			containers: containers === {} ? [] : containers.filter(({ name }) => {
-				let result = name.startsWith(newProps.searchQuery)
-				if(this.state.category !== "all") {
-					return result.filter(({ category }) => {
-						return category === this.state.category
-					})
-				}
-				return result
-			})
-		})
+	filterByProperty(array, prop, value){
+	    var filtered = [];
+	
+	    for(var i = 0; i < array.length; i++){
+	        var obj = array[i];
+	        for(var key in obj){
+	            if(typeof(obj[key] == "object")){
+	                var item = obj[key];
+	                if(item[prop] === value){
+	                    filtered.push(item);
+	                }
+	            }
+	        }
+	    }
+	    console.log(value, filtered)
+	    return filtered;
 	}
 
 	marginStyle = {
