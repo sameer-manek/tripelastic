@@ -1,69 +1,54 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { deleteContainer } from '../../../actions/container-actions'
 
-import Container from './Container'
+import Container from "./Container"
 
-function mapStateToProps(state) {
-	return {
-		user: state.user,
-		containers: state.containers,
-	}
-}
-
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps (dispatch) {
 	return bindActionCreators({ deleteContainer }, dispatch)
 }
 
-class Containers extends Component {
+class Containers extends Component{
 	constructor(props) {
 		super(props)
 
 		this.state = {
-			containers: [],
-			category: "all"
+			containers: {},
+			category: "all",
+			search: ""
 		}
-
-		this.deleteContainer = this.deleteContainer.bind(this)
-	}
-
-	filterByProperty(array, prop, value){
-	    var filtered = [];
-	
-	    for(var i = 0; i < array.length; i++){
-	        var obj = array[i];
-	        for(var key in obj){
-	            if(typeof(obj[key] == "object")){
-	                var item = obj[key];
-	                if(item[prop] === value){
-	                    filtered.push(item);
-	                }
-	            }
-	        }
-	    }
-	    console.log(value, filtered)
-	    return filtered;
-	}
-
-	marginStyle = {
-		padding: "50px 0"
 	}
 
 	deleteContainer(id) {
 		this.props.deleteContainer(sessionStorage.token, id)	
 	}
 
+	componentWillReceiveProps(newProps) {
+		this.setState ({
+			containers: newProps.containers,
+			category: newProps.category,
+			search: newProps.searchQuery
+		})
+	}
+
+	marginStyle = {
+		display: "block",
+		margin: "10px 0"
+	}
+
 	render() {
 		return (
 			<div style={this.marginStyle}>
-				{this.state.containers.map(container => {
+			<hr/>
+				<h1 className="subtitle">{this.state.category}</h1>
+
+				{Object.keys(this.state.containers).map(function(container) {
 					return (
 						<Container 
 							key={container.id}
 							data={container}
-							deleteContainer={this.deleteContainer}
 						/>
 					)
 				})}
@@ -72,5 +57,4 @@ class Containers extends Component {
 	}
 }
 
-export default connect(mapStateToProps)(Containers)
-
+export default connect(mapDispatchToProps)(Containers)

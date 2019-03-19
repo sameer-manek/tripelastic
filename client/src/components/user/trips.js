@@ -66,7 +66,7 @@ class Trips extends Component {
 	}
 
 	render() {
-		
+		let conts = this.props.containers
 		let searchComponent
 
 		if(this.state.selected !== "create") {
@@ -75,10 +75,11 @@ class Trips extends Component {
 			searchComponent = null
 		}
 
-		let containerSpace = this.state.searching === true ? <h2 className="subtitle">searching..</h2> : <Containers searchQuery={this.state.search} category={this.state.selected} />
+		let containerSpace = this.state.searching === true ? <h2 className="subtitle">searching..</h2> : <Containers containers={conts} searchQuery={this.state.search} category={this.state.selected} />
 		if (this.state.selected === "create") {
 			containerSpace = <CreateContainer inherit={this.state.inherit} />
 		}
+
 		return (
 			<div className="container">
 				<Bar />
