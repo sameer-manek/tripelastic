@@ -31,7 +31,8 @@ class Trips extends Component {
 			selected: "all",
 			search: "",
 			searching: false,
-			inherit: null
+			inherit: null,
+			containers: null
 		}
 
 		this.toggleSelected = this.toggleSelected.bind(this)
@@ -63,6 +64,14 @@ class Trips extends Component {
 
 	componentDidMount() {
 		this.props.fetchContainers(sessionStorage.token)
+	}
+
+	componentWillReceiveProps(newProps) {
+		if (newProps.containers !== this.state.containers) {
+			this.setState({
+				containers: newProps.containers
+			})
+		}
 	}
 
 	render() {

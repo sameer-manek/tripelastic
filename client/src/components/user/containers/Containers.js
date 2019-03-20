@@ -15,9 +15,10 @@ class Containers extends Component{
 		super(props)
 
 		this.state = {
-			containers: {},
+			containers: [],
 			category: "all",
-			search: ""
+			search: "",
+			loading: false,
 		}
 	}
 
@@ -25,11 +26,25 @@ class Containers extends Component{
 		this.props.deleteContainer(sessionStorage.token, id)	
 	}
 
-	componentWillReceiveProps(newProps) {
-		this.setState ({
-			containers: newProps.containers,
+	filterContainers(array, prop, value) {
+		let result = []
+		if (prop === "category" && value === "all") {
+			return array
+		}
+		for (let i = 0; i < array.length; i++) {
+			if (array[i][prop] === value) {
+				result.push(array[i])
+			}
+		}
+		return result
+	}
+
+	componentWillReceiveProps (newProps) {
+		this.setState({
+			containers: this.filterContainers(newProps.containers, "category", newProps.category),
 			category: newProps.category,
-			search: newProps.searchQuery
+			search: newProps.searchQuery,
+			loading: false
 		})
 	}
 
@@ -44,13 +59,11 @@ class Containers extends Component{
 			<hr/>
 				<h1 className="subtitle">{this.state.category}</h1>
 
-				{Object.keys(this.state.containers).map(function(container) {
-					return (
-						<Container 
-							key={container.id}
-							data={container}
-						/>
-					)
+				{this.state.containers.map(function (container) {
+					return (<Container
+						key={container.id}
+						data={container}
+					/>)
 				})}
 			</div>
 		)
