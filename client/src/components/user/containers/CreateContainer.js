@@ -15,7 +15,8 @@ class CreateContainer extends Component {
 			error: {
 				state: false,
 				message: ""
-			}
+			},
+			success: false
 		}
 
 		this.handleInputEvent = this.handleInputEvent.bind(this)
@@ -54,7 +55,7 @@ class CreateContainer extends Component {
 				})
 			break
 
-			default: 
+			default:
 			break
 		}
 	}
@@ -86,14 +87,23 @@ class CreateContainer extends Component {
 				query
 			}
 		}).then(({ data }) => {
-			console.log("ADDED CONTAINER", data)
+			data = data.data.createContainer
+			if (data.id && data.id !== null) {
+				this.setState({
+					success: true
+				})
+			}
 		}).catch(err => console.log(err))
 	}
 
 	render() {
 		let error
+		let success
 		if (this.state.error.state === true) {
 			error = <div className="message is-danger">{this.state.error.message}</div>
+		}
+		if (this.state.success === true) {
+			success = <div className="message is-primary">The container has been created successfully!</div>
 		}
 		return (
 			<div>
