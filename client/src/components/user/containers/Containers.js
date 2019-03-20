@@ -1,14 +1,6 @@
 import React, {Component} from 'react'
 
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import { deleteContainer } from '../../../actions/container-actions'
-
 import Container from "./Container"
-
-function mapDispatchToProps (dispatch) {
-	return bindActionCreators({ deleteContainer }, dispatch)
-}
 
 class Containers extends Component{
 	constructor(props) {
@@ -20,10 +12,6 @@ class Containers extends Component{
 			search: "",
 			loading: false,
 		}
-	}
-
-	deleteContainer(id) {
-		this.props.deleteContainer(sessionStorage.token, id)	
 	}
 
 	filterContainers(array, prop, value) {
@@ -59,10 +47,11 @@ class Containers extends Component{
 			<hr/>
 				<h1 className="subtitle">{this.state.category}</h1>
 
-				{this.state.containers.map(function (container) {
+				{this.state.containers.map(container => {
 					return (<Container
 						key={container.id}
 						data={container}
+						deleteContainer={this.props.deleteContainer}
 					/>)
 				})}
 			</div>
@@ -70,4 +59,4 @@ class Containers extends Component{
 	}
 }
 
-export default connect(mapDispatchToProps)(Containers)
+export default Containers

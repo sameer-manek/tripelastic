@@ -3,7 +3,7 @@ import { Redirect } from 'react-router-dom'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { fetchContainers } from '../../actions/container-actions'
+import { fetchContainers, deleteContainer } from '../../actions/container-actions'
 
 import Bar from './bar'
 import { TripsMenu } from './menus'
@@ -20,7 +20,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-	return bindActionCreators({ fetchContainers }, dispatch)
+	return bindActionCreators({ fetchContainers, deleteContainer }, dispatch)
 }
 
 class Trips extends Component {
@@ -37,6 +37,7 @@ class Trips extends Component {
 
 		this.toggleSelected = this.toggleSelected.bind(this)
 		this.handleSearchEvent = this.handleSearchEvent.bind(this)
+		this.deleteContainer = this.deleteContainer.bind(this)
 	}
 
 	toggleSelected = function (newSelection) {
@@ -45,6 +46,10 @@ class Trips extends Component {
 				selected: newSelection
 			})
 		}
+	}
+
+	deleteContainer (id) {
+		this.props.deleteContainer(sessionStorage.token, id)
 	}
 
 	handleSearchEvent = function (e) {
@@ -84,7 +89,7 @@ class Trips extends Component {
 			searchComponent = null
 		}
 
-		let containerSpace = this.state.searching === true ? <h2 className="subtitle">searching..</h2> : <Containers containers={conts} searchQuery={this.state.search} category={this.state.selected} />
+		let containerSpace = this.state.searching === true ? <h2 className="subtitle">searching..</h2> : <Containers containers={conts} searchQuery={this.state.search} category={this.state.selected} deleteContainer={this.deleteContainer} />
 		if (this.state.selected === "create") {
 			containerSpace = <CreateContainer inherit={this.state.inherit} />
 		}
