@@ -17,6 +17,10 @@ const { privateKey } = require("../config")
 
 const User = require('../models/user')
 const Container = require('../models/container')
+const Entity = require('../models/hotel')
+const Hotel = require('../models/hotel')
+const Transport = require('../models/transport')
+const Destination = require('../models/destination')
 
 const { 
 	GraphQLObjectType, 
@@ -34,6 +38,8 @@ const UserType = require('./userSchema')
 const ActiveUserType = require('./activeUserSchema')
 
 const ContainerType = require('./containerSchema')
+
+// const { EntityType, HotelType, TransportType, DestinationType } = require('./entitySchema')
 
 const ActionType = new GraphQLObjectType({
 	name: 'Action',
@@ -173,7 +179,37 @@ const RootQuery = new GraphQLObjectType({
 				console.log("user not authentic")
 				return null
 			}
-		}
+		},
+
+		// fetchHotel: {
+		// 	type: HotelType,
+		// 	args: {
+		// 		id: { type: new GraphQLNonNull(GraphQLID) }
+		// 	},
+		// 	resolve: async function(parent, args) {
+		// 		return await Hotel.findById(args.id)
+		// 	}
+		// },
+
+		// fetchTransport: {
+		// 	type: TransportType,
+		// 	args: {
+		// 		id: { type: new GraphQLNonNull(GraphQLID) }
+		// 	},
+		// 	resolve: async function (parent, args) {
+		// 		return await Transport.findById(args.id)
+		// 	}
+		// },
+
+		// fetchDestination: {
+		// 	type: DestinationType,
+		// 	args: {
+		// 		id: { type: new GraphQLNonNull(GraphQLID) }
+		// 	},
+		// 	resolve: async function (parent, args) {
+		// 		return await Destination.findById(args.id)
+		// 	}
+		// },		
 	}
 })
 
@@ -384,7 +420,39 @@ const Mutation = new GraphQLObjectType({
 					message: "container could not be deleted"
 				}
 			}
-		}
+		},
+
+		// createEntity: {
+		// 	type: EntityType,
+		// 	args: {
+		// 		token: { type: new GraphQLNonNull(GraphQLString) },
+		// 		name: { type: new GraphQLNonNull(GraphQLString) },
+		// 		containerId: { type: new GraphQLNonNull(GraphQLID) },
+		// 		type: { type: new GraphQLNonNull(GraphQLString) },
+		// 		detail: { type: new GraphQLNonNull(GraphQLString) },
+		// 		start: { type: GraphQLString },
+		// 		end: { type: GraphQLString }
+		// 	},
+		// 	resolve: async function(parent, args) {
+		// 		let data = jwt.verify(token, privateKey)
+		// 		let userId = data.id
+		// 		let container = await Container.findById(args.containerId)
+		// 		if (container && container.userId.toString() === userId) {
+		// 			// register the entity
+		// 			let entity = new Entity({
+		// 				name: args.name,
+		// 				containerId: args.containerId,
+		// 				type: args.type,
+		// 				detail: args.detail,
+		// 				start: args.start ? args.start : null,
+		// 				end: args.end ? args.end : null
+		// 			})
+
+		// 			return entity.save()
+		// 		}
+		// 		throw new Error('Could not find the container or you are not authorized!')
+		// 	}
+		// }
 	}
 })
 

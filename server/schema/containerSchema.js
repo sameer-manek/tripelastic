@@ -2,9 +2,11 @@ const graphql = require('graphql')
 const _ = require('lodash')
 
 const UserType = require('./userSchema')
+const { EntityType } = require('./entitySchema')
 
 const User = require('../models/user')
 const Container = require('../models/container')
+const Entity = require('../models/entity')
 
 const { 
 	GraphQLObjectType, 
@@ -40,7 +42,12 @@ const ContainerType = new GraphQLObjectType ({
 		createdAt: { type: GraphQLString },
 		category: { type: GraphQLString },
 		status: { type: GraphQLString },
-
+		entities: {
+			type: GraphQLList(EntityType),
+			resolve: async function(parent, args) {
+				return await Entity.find({ containerId: parent.id })
+			}
+		}
 	})
 })
 

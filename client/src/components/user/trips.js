@@ -10,6 +10,7 @@ import { TripsMenu } from './menus'
 import SearchComponent from './containers/SearchComponent'
 import Containers from './containers/Containers'
 import CreateContainer from './containers/CreateContainer'
+import Loader from '../Loader'
 
 
 function mapStateToProps(state) {
@@ -32,12 +33,14 @@ class Trips extends Component {
 			search: "",
 			searching: false,
 			inherit: null,
-			containers: null
+			containers: null,
+			loading: true
 		}
 
 		this.toggleSelected = this.toggleSelected.bind(this)
 		this.handleSearchEvent = this.handleSearchEvent.bind(this)
 		this.deleteContainer = this.deleteContainer.bind(this)
+		this.fetchContainers = this.fetchContainers.bind(this)
 	}
 
 	toggleSelected = function (newSelection) {
@@ -67,14 +70,22 @@ class Trips extends Component {
 		})
 	}
 
-	componentDidMount() {
+	fetchContainers() {
+		this.setState({
+			loading: true
+		})
 		this.props.fetchContainers(sessionStorage.token)
+	}
+
+	componentDidMount() {
+		this.fetchContainers()
 	}
 
 	componentWillReceiveProps(newProps) {
 		if (newProps.containers !== this.state.containers) {
 			this.setState({
-				containers: newProps.containers
+				containers: newProps.containers,
+				loading: false
 			})
 		}
 	}
@@ -91,7 +102,11 @@ class Trips extends Component {
 
 		let containerSpace = this.state.searching === true ? <h2 className="subtitle">searching..</h2> : <Containers containers={conts} searchQuery={this.state.search} category={this.state.selected} deleteContainer={this.deleteContainer} />
 		if (this.state.selected === "create") {
-			containerSpace = <CreateContainer inherit={this.state.inherit} />
+			containerSpace = <CreateContainer inherit={this.state.inherit} fetchContainers={this.fetchContainers} />
+		}
+
+		if(this.state.loading === true) {
+			containerSpace = <Loader type="spin" color="#000000" />
 		}
 
 		return (

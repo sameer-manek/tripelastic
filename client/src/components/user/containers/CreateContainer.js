@@ -92,24 +92,34 @@ class CreateContainer extends Component {
 				this.setState({
 					success: true
 				})
+			} else {
+				this.setState({
+					error: {
+						state: true,
+						message: "Sorry!, could not create the container, please try again!"
+					}
+				})
 			}
 		}).catch(err => console.log(err))
 	}
 
+	async componentWillUnmount() {
+		await this.props.fetchContainers()
+	}
+
 	render() {
-		let error
-		let success
+		let message
 		if (this.state.error.state === true) {
-			error = <div className="message is-danger">{this.state.error.message}</div>
+			message = <article className="message is-danger">{this.state.error.message}</article>
 		}
 		if (this.state.success === true) {
-			success = <div className="message is-primary">The container has been created successfully!</div>
+			message = <article className="message is-primary">The container has been created successfully!</article>
 		}
 		return (
 			<div>
 				<h1 className="subtitle">Create new trip container</h1>
 				<form>
-					{error}
+					{message}
 					<div className="control">
 						<label htmlFor="" className="label">Name</label>
 						<div className="field">
