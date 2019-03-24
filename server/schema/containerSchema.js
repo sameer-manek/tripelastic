@@ -33,7 +33,7 @@ const ContainerType = new GraphQLObjectType ({
 		parent: {
 			type: ContainerType,
 			resolve: function (parent, args) {
-				return User.findById(parent.parentContainer)
+				return Container.findById(parent.parentContainer)
 			}
 		},
 		detail: { type: GraphQLString },

@@ -17,13 +17,13 @@ const { privateKey } = require("../config")
 
 const User = require('../models/user')
 const Container = require('../models/container')
-const Entity = require('../models/hotel')
+const Entity = require('../models/entity')
 const Hotel = require('../models/hotel')
 const Transport = require('../models/transport')
 const Destination = require('../models/destination')
 
 const { 
-	GraphQLObjectType, 
+	GraphQLObjectType,
 	GraphQLString,
 	GraphQLBoolean,
 	GraphQLSchema,
@@ -39,7 +39,19 @@ const ActiveUserType = require('./activeUserSchema')
 
 const ContainerType = require('./containerSchema')
 
-// const { EntityType, HotelType, TransportType, DestinationType } = require('./entitySchema')
+const { EntityType, HotelType, TransportType, DestinationType } = require('./entitySchema')
+
+// usefull functions
+
+const createToken = function (data, expiresIn) {
+	return jwt.sign(data, privateKey, { expiresIn })
+}
+
+const verifyToken = function (token) {
+	return jwt.verify(token, privateKey)
+}
+
+// end utilities
 
 const ActionType = new GraphQLObjectType({
 	name: 'Action',
@@ -181,35 +193,35 @@ const RootQuery = new GraphQLObjectType({
 			}
 		},
 
-		// fetchHotel: {
-		// 	type: HotelType,
-		// 	args: {
-		// 		id: { type: new GraphQLNonNull(GraphQLID) }
-		// 	},
-		// 	resolve: async function(parent, args) {
-		// 		return await Hotel.findById(args.id)
-		// 	}
-		// },
+		fetchHotel: {
+			type: HotelType,
+			args: {
+				id: { type: new GraphQLNonNull(GraphQLID) }
+			},
+			resolve: async function(parent, args) {
+				return await Hotel.findById(args.id)
+			}
+		},
 
-		// fetchTransport: {
-		// 	type: TransportType,
-		// 	args: {
-		// 		id: { type: new GraphQLNonNull(GraphQLID) }
-		// 	},
-		// 	resolve: async function (parent, args) {
-		// 		return await Transport.findById(args.id)
-		// 	}
-		// },
+		fetchTransport: {
+			type: TransportType,
+			args: {
+				id: { type: new GraphQLNonNull(GraphQLID) }
+			},
+			resolve: async function (parent, args) {
+				return await Transport.findById(args.id)
+			}
+		},
 
-		// fetchDestination: {
-		// 	type: DestinationType,
-		// 	args: {
-		// 		id: { type: new GraphQLNonNull(GraphQLID) }
-		// 	},
-		// 	resolve: async function (parent, args) {
-		// 		return await Destination.findById(args.id)
-		// 	}
-		// },		
+		fetchDestination: {
+			type: DestinationType,
+			args: {
+				id: { type: new GraphQLNonNull(GraphQLID) }
+			},
+			resolve: async function (parent, args) {
+				return await Destination.findById(args.id)
+			}
+		},		
 	}
 })
 
@@ -422,37 +434,367 @@ const Mutation = new GraphQLObjectType({
 			}
 		},
 
-		// createEntity: {
-		// 	type: EntityType,
-		// 	args: {
-		// 		token: { type: new GraphQLNonNull(GraphQLString) },
-		// 		name: { type: new GraphQLNonNull(GraphQLString) },
-		// 		containerId: { type: new GraphQLNonNull(GraphQLID) },
-		// 		type: { type: new GraphQLNonNull(GraphQLString) },
-		// 		detail: { type: new GraphQLNonNull(GraphQLString) },
-		// 		start: { type: GraphQLString },
-		// 		end: { type: GraphQLString }
-		// 	},
-		// 	resolve: async function(parent, args) {
-		// 		let data = jwt.verify(token, privateKey)
-		// 		let userId = data.id
-		// 		let container = await Container.findById(args.containerId)
-		// 		if (container && container.userId.toString() === userId) {
-		// 			// register the entity
-		// 			let entity = new Entity({
-		// 				name: args.name,
-		// 				containerId: args.containerId,
-		// 				type: args.type,
-		// 				detail: args.detail,
-		// 				start: args.start ? args.start : null,
-		// 				end: args.end ? args.end : null
-		// 			})
+		createEntity: {
+			type: EntityType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				name: { type: new GraphQLNonNull(GraphQLString) },
+				containerId: { type: new GraphQLNonNull(GraphQLID) },
+				type: { type: new GraphQLNonNull(GraphQLString) },
+				detail: { type: new GraphQLNonNull(GraphQLString) },
+				start: { type: GraphQLString },
+				end: { type: GraphQLString }
+			},
+			resolve: async function(parent, args) {
+				let data = jwt.verify(token, privateKey)
+				let userId = data.id
+				let container = await Container.findById(args.containerId)
+				if (container && container.userId.toString() === userId) {
+					// register the entity
+					let entity = new Entity({
+						name: args.name,
+						containerId: args.containerId,
+						type: args.type,
+						detail: args.detail,
+						start: args.start ? args.start : null,
+						end: args.end ? args.end : null
+					})
 
-		// 			return entity.save()
-		// 		}
-		// 		throw new Error('Could not find the container or you are not authorized!')
-		// 	}
-		// }
+					return entity.save()
+				}
+				throw new Error('Could not find the container or you are not authorized!')
+			}
+		},
+
+		createHotel: {
+			type: HotelType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				address: { type: new GraphQLNonNull(GraphQLString) },
+				city: { type: new GraphQLNonNull(GraphQLString) },
+				country: { type: new GraphQLNonNull(GraphQLString) },
+				pincode: { type: GraphQLInt },
+				location: { type: GraphQLString },
+				room: { type: GraphQLString },
+				entity: { type: GraphQLID }
+			},
+			resolve: async (parent, args) => {
+				let data = await verifyToken(args.token)
+				let entity = await Entity.findById(args.entity)
+				if (!data.error && entity) {
+					// register the hotel and put that into the entity
+					let hotel = new Hotel({
+						userId: data.id,
+						address: args.address,
+						city: args.city,
+						country: args.country,
+						pincode: args.pincode,
+						location: args.location,
+						room: args.room
+					})
+
+					let store = hotel.save()
+
+					entity.detail = store.id
+					await entity.save()
+
+					return store
+				}
+				return new Error("could not authenticate the user")
+			}
+		},
+
+		createTransport: {
+			type: TransportType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				type: { type: new GraphQLNonNull(GraphQLString) },
+				pickupAddress: { type: new GraphQLNonNull(GraphQLString) },
+				pickupCity: { type: new GraphQLNonNull(GraphQLString) },
+				pickupCountry: { type: new GraphQLNonNull(GraphQLString) },
+				pickupPincode: { type: GraphQLInt },
+				pickupLocation: { type: GraphQLString },
+				dropAddress: { type: new GraphQLNonNull(GraphQLString) },
+				dropCity: { type: new GraphQLNonNull(GraphQLString) },
+				dropCountry: { type: new GraphQLNonNull(GraphQLString) },
+				dropPincode: { type: GraphQLInt },
+				dropLocation: { type: GraphQLString },
+				seat: { type: GraphQLString },
+				entity: { type: GraphQLID }
+			},
+			resolve: async (parent, args) => {
+				let data = await verifyToken(args.token)
+				let entity = await Entity.findById(args.entity)
+				if (!data.error && entity) {
+					// register the Transport and put that into the entity
+					let transport = new Transport({
+						type: args.type,
+						userId: data.id,
+						pickupAddress: args.pickupAddress,
+						pickupCity: args.pickupCity,
+						pickupCountry: args.pickupCountry,
+						pickupPincode: args.pickupPincode,
+						pickupLocation: args.pickupLocation,
+						dropAddress: args.dropAddress,
+						dropCity: args.dropCity,
+						dropCountry: args.dropCountry,
+						dropPincode: args.dropPincode,
+						dropLocation: args.dropLocation,
+						seat: args.seat
+					})
+
+					let store = transport.save()
+
+					entity.detail = store.id
+					await entity.save()
+
+					return store
+				}
+				return new Error("could not authenticate the user")
+			}
+		},
+
+		createDestination: {
+			type: DestinationType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				address: { type: new GraphQLNonNull(GraphQLString) },
+				city: { type: new GraphQLNonNull(GraphQLString) },
+				country: { type: new GraphQLNonNull(GraphQLString) },
+				pincode: { type: GraphQLInt },
+				location: { type: GraphQLString },
+				entity: { type: GraphQLID }
+			},
+			resolve: async (parent, args) => {
+				let data = await verifyToken(args.token)
+				let entity = await Entity.findById(args.entity)
+				if (!data.error && entity) {
+					// register the destination and put that into the entity
+					let destination = new Destination({
+						address: args.address,
+						userId: data.id,
+						city: args.city,
+						country: args.country,
+						pincode: args.pincode,
+						location: args.location,
+						room: args.room
+					})
+
+					let store = destination.save()
+
+					entity.detail = store.id
+					await entity.save()
+
+					return store
+				}
+				return new Error("could not authenticate the user")
+			}
+		},
+
+		updateEntity: {
+			type: ActionType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				id: { type: new GraphQLNonNull(GraphQLID) },
+				name: { type: GraphQLString },
+				detail: { type: GraphQLString },
+				start: { type: GraphQLString },
+				end: { type: GraphQLString },
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if (data.error) {
+					return {
+						success: false,
+						message: "Invalid token"
+					}
+				}
+				let user = await User.findById(data.id)
+				let entity = await Entity.findById(args.id)
+				if (user && entity) {
+					let container = await Container.findById(entity.containerId)
+					if (container.userId === user.id) {
+						// change the entity details
+						entity.name = args.name ? args.name : entity.name
+						entity.detail = args.detail ? args.detail : entity.detail
+						entity.start = args.start ? args.start : entity.start
+						entity.end = args.end ? args.end : entity.end
+
+						await entity.save()
+						return {
+							success: true,
+							message: "Entity has been updated successfully!"
+						}
+					}
+				}
+				return {
+					success: false,
+					message: "Access denied"
+				}
+			}
+		},
+
+		updateHotel: {
+			type: ActionType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				id: { type: new GraphQLNonNull(GraphQLID) },
+				address: { type: new GraphQLNonNull(GraphQLString) },
+				city: { type: new GraphQLNonNull(GraphQLString) },
+				country: { type: new GraphQLNonNull(GraphQLString) },
+				pincode: { type: GraphQLInt },
+				location: { type: GraphQLString },
+				room: { type: GraphQLString }
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if(data.error) {
+					return {
+						success: false,
+						message: "Invalid Token"
+					}
+				}
+
+				let hotel = await Hotel.findById(args.id)
+				let user = await User.findById(data.id)
+
+				if(user && hotel && hotel.userId.toString() === data.id) {
+					// update hotel
+					hotel.address = args.address ? args.address : hotel.address
+					hotel.city = args.city ? args.city : hotel.city
+					hotel.country = args.country ? args.country : hotel.country
+					hotel.pincode = args.pincode ? args.pincode : hotel.pincode
+					hotel.location = args.location ? args.location : hotel.location
+					hotel.room = args.room ? args.room : hotel.room
+
+					await hotel.save()
+					return {
+						success: true,
+						message: "hotel updated successfully!"
+					}
+				}
+
+				return {
+					success: false,
+					message: "Access denied!"
+				}
+			}
+		},
+
+		updateTransport: {
+			type: ActionType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				id: { type: new GraphQLNonNull(GraphQLID) },
+				type: { type: new GraphQLNonNull(GraphQLString) },
+				pickupAddress: { type: GraphQLString },
+				pickupCity: { type: GraphQLString },
+				pickupCountry: { type: GraphQLString },
+				pickupPincode: { type: GraphQLInt },
+				pickupLocation: { type: GraphQLString },
+				dropAddress: { type: GraphQLString },
+				dropCity: { type: GraphQLString },
+				dropCountry: { type: GraphQLString },
+				dropPincode: { type: GraphQLInt },
+				dropLocation: { type: GraphQLString },
+				seat: { type: GraphQLString },
+			},
+			resolve: async function (parent, args) {
+				let data = verifyToken(args.token)
+				if (data.error) {
+					return {
+						success: false,
+						message: "Invalid Token!"
+					}
+				}
+
+				let user = await User.findById(data.id)
+				let transport = Transport.findById(id)
+
+				if(user && transport && transport.userId === user.id) {
+					// update transport
+					transport.type = args.type ? args.type : transport.type
+					transport.pickupAddress = args.pickupAddress ? args.pickupAddress : transport.pickupAddress
+					transport.pickupCity = args.pickupCity ? args.pickupCity : transport.pickupCity
+					transport.pickupCountry = args.pickupCountry ? args.pickupCountry : transport.pickupCountry
+					transport.pickupPincode = args.pickupPincode ? args.pickupPincode : transport.pickupPincode
+					transport.pickupLocation = args.pickupLocation ? args.pickupLocation : transport.pickupLocation
+					transport.dropAddress = args.dropAddress ? args.dropAddress : transport.dropAddress
+					transport.dropCity = args.dropCity ? args.dropCity : transport.dropCity
+					transport.dropCountry = args.dropCountry ? args.dropCountry : transport.dropCountry
+					transport.dropPincode = args.dropPincode ? args.dropPincode : transport.dropPincode
+					transport.dropLocation = args.dropLocation ? args.dropLocation : transport.dropLocation
+					transport.seat = args.seat ? args.seat : transport.seat
+
+					await transport.save()
+					return {
+						success: true,
+						message: "Entity has been updated"
+					}
+				}
+
+				return {
+					success: false,
+					message: "Access denied"
+				}
+			}
+		},
+
+		updateDestination: {
+			type: ActionType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				id: { type: new GraphQLNonNull(GraphQLID) },
+				address: { type: new GraphQLNonNull(GraphQLString) },
+				city: { type: new GraphQLNonNull(GraphQLString) },
+				country: { type: new GraphQLNonNull(GraphQLString) },
+				pincode: { type: GraphQLInt },
+				location: { type: GraphQLString }
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if(data.error) {
+					return {
+						success: false,
+						message: "Invalid Token"
+					}
+				}
+
+				let destination = await Destination.findById(args.id)
+				let user = await User.findById(data.id)
+
+				if(user && Destination && Destination.userId.toString() === data.id) {
+					// update Destination
+					destination.address = args.address ? args.address : destination.address
+					destination.city = args.city ? args.city : destination.city
+					destination.country = args.country ? args.country : destination.country
+					destination.pincode = args.pincode ? args.pincode : destination.pincode
+					destination.location = args.location ? args.location : destination.location
+
+					await destination.save()
+					return {
+						success: true,
+						message: "hotel updated successfully!"
+					}
+				}
+			}
+		},
+
+		deleteEntity: {
+			type: ActionType,
+		},
+
+		deleteHotel: {
+			type: ActionType,
+		},
+
+		deleteTransport: {
+			type: ActionType,
+		},
+
+		deleteDestination: {
+			type: ActionType,
+		}
 	}
 })
 

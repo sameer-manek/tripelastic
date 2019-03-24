@@ -10,7 +10,7 @@ const Hotel = require('../models/hotel')
 const Destination = require('../models/destination')
 const Transport = require('../models/transport')
 
-const { 
+const {
 	GraphQLObjectType, 
 	GraphQLString,
 	GraphQLBoolean,
@@ -24,16 +24,16 @@ const {
 
 const EntityType = new GraphQLObjectType({
 	name: "Entity",
-	fields: ({
-		name: { type: GraphQLString },
-		container: {
-			type: ContainerType,
-			resolve: async function(parent, args) {
-				return await Container.findById(parent.containerId)
-			}
+	fields: () => ({
+		name: { type: new GraphQLNonNull(GraphQLString) },
+		containerId: { 
+			type: GraphQLID,
+			// resolve: (parent, args) => {
+			// 	return Container.findById(parent.containerId)
+			// }
 		},
-		type: { type: GraphQLString },
-		detail: { type: GraphQLID },
+		type: { type: new GraphQLNonNull(GraphQLString) },
+		detail: { type: new GraphQLNonNull(GraphQLString) },
 		start: { type: GraphQLString },
 		end: { type: GraphQLString }
 	})
@@ -41,7 +41,7 @@ const EntityType = new GraphQLObjectType({
 
 const HotelType = new GraphQLObjectType({
 	name: "Hotel",
-	fields: ({
+	fields: () => ({
 		address: { type: new GraphQLNonNull(GraphQLString) },
 		city: { type: new GraphQLNonNull(GraphQLString) },
 		country: { type: new GraphQLNonNull(GraphQLString) },
@@ -53,7 +53,7 @@ const HotelType = new GraphQLObjectType({
 
 const TransportType = new GraphQLObjectType({
 	name: "Tranport",
-	fields: ({
+	fields: () => ({
 		type: { type: new GraphQLNonNull(GraphQLString) },
 		pickupAddress: { type: new GraphQLNonNull(GraphQLString) },
 		pickupCity: { type: new GraphQLNonNull(GraphQLString) },
@@ -71,7 +71,7 @@ const TransportType = new GraphQLObjectType({
 
 const DestinationType = new GraphQLObjectType({
 	name: "Destination",
-	fields: ({
+	fields: () => ({
 		address: { type: GraphQLString },
 		city: { type: new GraphQLNonNull(GraphQLString) },
 		country: { type: new GraphQLNonNull(GraphQLString) },
