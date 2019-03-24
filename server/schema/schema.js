@@ -30,17 +30,20 @@ const {
 	GraphQLInt,
 	GraphQLID,
 	GraphQLList,
-	GraphQLNonNull
+	GraphQLNonNull,
 } = graphql
 
 const UserType = require('./userSchema')
 
 const ActiveUserType = require('./activeUserSchema')
 
-const ContainerType = require('./containerSchema')
+const { EntityType, ContainerType } = require('./containerSchema')
 
-const { EntityType, HotelType, TransportType, DestinationType } = require('./entitySchema')
+const HotelType = require('./hotelSchema')
 
+const TransportType = require('./transportSchema')
+
+const DestinationType = require('./destinationSchema')
 // usefull functions
 
 const createToken = function (data, expiresIn) {

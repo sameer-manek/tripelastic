@@ -2,7 +2,6 @@ const graphql = require('graphql')
 const _ = require('lodash')
 
 const UserType = require('./userSchema')
-const { EntityType } = require('./entitySchema')
 
 const User = require('../models/user')
 const Container = require('../models/container')
@@ -12,12 +11,28 @@ const {
 	GraphQLObjectType, 
 	GraphQLString,
 	GraphQLBoolean,
-	GraphQLSchema,
 	GraphQLInt,
 	GraphQLID,
 	GraphQLList,
 	GraphQLNonNull
 } = graphql
+
+const EntityType = new GraphQLObjectType ({
+	name: "Entity",
+	fields: () => ({
+		name: { type: new GraphQLNonNull(GraphQLString) },
+		container: { 
+			type: ContainerType,
+			resolve: (parent, args) => {
+				return Container.findById(parent.containerId)
+			}
+		},
+		type: { type: new GraphQLNonNull(GraphQLString) },
+		detail: { type: new GraphQLNonNull(GraphQLString) },
+		start: { type: GraphQLString },
+		end: { type: GraphQLString }
+	})
+})
 
 const ContainerType = new GraphQLObjectType ({
 	name: 'Container',
@@ -51,6 +66,7 @@ const ContainerType = new GraphQLObjectType ({
 	})
 })
 
-
-
-module.exports = ContainerType
+module.exports = {
+	EntityType, 
+	ContainerType
+}
