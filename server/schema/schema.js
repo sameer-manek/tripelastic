@@ -426,9 +426,9 @@ const Mutation = new GraphQLObjectType({
 				if(container && container.userId.toString() === data.id) {
 					container.remove()
 					return {
-					success: true,
-					message: "container has been deleted"
-				}
+						success: true,
+						message: "container has been deleted"
+					}
 				}
 				return {
 					success: false,
@@ -785,18 +785,35 @@ const Mutation = new GraphQLObjectType({
 
 		deleteEntity: {
 			type: ActionType,
-		},
+			args: { 
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				id: { type: new GraphQLNonNull(GraphQLID) }
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if(data.error) {
+					return {
+						success: false,
+						message: "Invalid token"
+					}
+				}
+			
+				let user = await User.findById(data.id)
+				let entity = await Entity.findById(id)
+				let container = await Container.findById(entity.containerId.toString())
+				if(user && entity && container.userId === user.id) {
+					await entity.remove()
+					return {
+						success: true,
+						message: "entity has been removed"
+					}
+				}
 
-		deleteHotel: {
-			type: ActionType,
-		},
-
-		deleteTransport: {
-			type: ActionType,
-		},
-
-		deleteDestination: {
-			type: ActionType,
+				return {
+					success: false,
+					message: "access denied!"
+				}
+			}
 		}
 	}
 })
