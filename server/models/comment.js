@@ -8,7 +8,9 @@ const commentSchema = new Schema({
 	userId: { type: ObjectId, required: true },
 	postId: { type: ObjectId, required: true },
 	parentId: { type: ObjectId, required: false },
-	votes: { type: Number, required: false, default: 0 }
+	votes: { type: Number, required: false, default: 0 },
+	createdAt: { type: Date, required: true },
+	updatedAt: { type: Date, required: true }
 })
 
 module.exports = mongoose.model("Comment", commentSchema)

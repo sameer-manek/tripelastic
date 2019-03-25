@@ -21,6 +21,9 @@ const Entity = require('../models/entity')
 const Hotel = require('../models/hotel')
 const Transport = require('../models/transport')
 const Destination = require('../models/destination')
+const Post = require("../models/post")
+const Comment = require("../models/comment")
+const Vote = require("../models/vote")
 
 const { 
 	GraphQLObjectType,
@@ -37,14 +40,24 @@ const UserType = require('./userSchema')
 
 const ActiveUserType = require('./activeUserSchema')
 
-const { EntityType, ContainerType } = require('./containerSchema')
+const { 
+	EntityType, 
+	ContainerType 
+} = require('./containerSchema')
 
 const HotelType = require('./hotelSchema')
 
 const TransportType = require('./transportSchema')
 
 const DestinationType = require('./destinationSchema')
-// usefull functions
+
+const {
+	PostType,
+	CommentType,
+	VoteType
+} = require ('./forumSchema')
+
+// utilities
 
 const createToken = function (data, expiresIn) {
 	return jwt.sign(data, privateKey, { expiresIn })
@@ -82,7 +95,7 @@ const RootQuery = new GraphQLObjectType({
 					return {
 						success: true,
 						message: "found user",
-						token: jwt.sign({ id: user.id }, privateKey, {}),
+						token: jwt.sign({ id: user._id }, privateKey, {}),
 						username: user.username
 					}
 				} else {
@@ -224,7 +237,35 @@ const RootQuery = new GraphQLObjectType({
 			resolve: async function (parent, args) {
 				return await Destination.findById(args.id)
 			}
-		},		
+		},
+
+		myPosts: {
+			type: GraphQLList(PostType),
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) }
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if (data.error) {
+					return new Error ("invalid token")
+				}
+				return await Post.find({ userId: data.id })
+			}
+		},
+
+		allPosts: {
+			type: GraphQLList(PostType),
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) }
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if (data.error) {
+					return new Error ("invalid token")
+				}
+				return await Post.find({ })
+			}
+		},
 	}
 })
 
@@ -616,7 +657,7 @@ const Mutation = new GraphQLObjectType({
 				let entity = await Entity.findById(args.id)
 				if (user && entity) {
 					let container = await Container.findById(entity.containerId)
-					if (container.userId === user.id) {
+					if (container.userId === user._id) {
 						// change the entity details
 						entity.name = args.name ? args.name : entity.name
 						entity.detail = args.detail ? args.detail : entity.detail
@@ -714,7 +755,7 @@ const Mutation = new GraphQLObjectType({
 				let user = await User.findById(data.id)
 				let transport = Transport.findById(id)
 
-				if(user && transport && transport.userId === user.id) {
+				if(user && transport && transport.userId === user._id) {
 					// update transport
 					transport.type = args.type ? args.type : transport.type
 					transport.pickupAddress = args.pickupAddress ? args.pickupAddress : transport.pickupAddress
@@ -801,7 +842,7 @@ const Mutation = new GraphQLObjectType({
 				let user = await User.findById(data.id)
 				let entity = await Entity.findById(id)
 				let container = await Container.findById(entity.containerId.toString())
-				if(user && entity && container.userId === user.id) {
+				if(user && entity && container.userId === user._id) {
 					await entity.remove()
 					return {
 						success: true,
@@ -814,8 +855,354 @@ const Mutation = new GraphQLObjectType({
 					message: "access denied!"
 				}
 			}
-		}
+		},
+
+		// forum operations
+
+		createPost: {
+			type: PostType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				title: { type: new GraphQLNonNull(GraphQLString) },
+				content: { type: new GraphQLNonNull(GraphQLString) },
+				containerId: { type: GraphQLString }
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if (data.error) {
+					return new Error ('Invalid Token!')
+				}
+				let user = await User.findById(data.id)
+				let container = args.containerId ? ( await Container.findById(args.containerId) ? args.containerId : null ) : null
+				date = new Date
+				if (user) {
+					let post = new Post({
+						title: args.title,
+						content: args.content,
+						userId: user._id.toString(),
+						containerId: container,
+						createdAt: date,
+						updatedAt: date
+					})
+
+					return await post.save()
+				}
+
+				return new Error ("access denied")
+			}
+		},
+
+		updatePost: {
+			type: ActionType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				id: { type: new GraphQLNonNull(GraphQLID) },
+				title: { type: GraphQLString },
+				content: { type: GraphQLString },
+				containerId: { type: GraphQLString }
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if (data.error) {
+					return {
+						success: false,
+						message: "Invalid token!"
+					}
+				}
+				let user = await User.findById(data.id)
+				let post = await Post.findById(args.id)
+				let container = args.containerId ? ( await Container.findById(args.containerId) ? args.containerId : post.containerId ) : post.containerId
+
+				if(user && post && post.userId === user._id) {
+					post.title = args.title ? args.title : post.title
+					post.content = args.content ? args.content : post.content
+					post.containerId = container
+					post.update = new Date()
+
+					await post.save()
+					return {
+						success: true,
+						message: "updated the post successfully"
+					}
+				}
+
+				return {
+					success: false,
+					message: "Access Denied!"
+				}
+			}
+		},
+
+		deletePost: {
+			type: ActionType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				id: { type: new GraphQLNonNull(GraphQLID) }
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if (data.error) {
+					return {
+						success: false,
+						message: "Invalid token!"
+					}
+				}
+				let user = await User.findById(data.id)
+				let post = await Post.findById(args.id)
+				if(user && post && post.userId === user._id) {
+					await post.remove()
+					return {
+						success: true,
+						message: "updated the post successfully"
+					}
+				}
+				return {
+					success: false,
+					message: "Access Denied!"
+				}
+			}
+		},
+
+		createComment: {
+			type: CommentType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				content: { type: new GraphQLNonNull(GraphQLString) },
+				postId: { type: new GraphQLNonNull(GraphQLID) },
+				parentId: { type: new GraphQLNonNull(GraphQLID) }
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if (data.error) {
+					return {
+						success: false,
+						message: "Invalid token!"
+					}
+				}
+				let user = await User.findById(data.id)
+				let post = await Post.findById(args.postId)
+				let parent = args.parentId ? ( await Comment.findById(args.parentId) ? args.parentId : null ) : null
+				let date = new Date
+
+				if (user && post) {
+					let comment = new Comment({
+						content: args.content,
+						userId: user._id,
+						postId: post._id,
+						parentId: parent,
+						votes: 0,
+						createdAt: date,
+						updatedAt: date
+					})
+
+					return await comment.save()
+				}
+
+				return new Error ("Access Denied!")
+			}
+		},
+
+		updateComment: {
+			type: ActionType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				id: { type: new GraphQLNonNull(GraphQLID) },
+				content: { type: new GraphQLNonNull(GraphQLString) },
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if (data.error) {
+					return {
+						success: false,
+						message: "Invalid token!"
+					}
+				}
+				let user = await User.findById(data.id)
+				let comment = await Comment.findById(args.id)
+
+				if (user && comment && user._id === comment.userId) {
+					comment.content = args.content
+
+					return {
+						success: true,
+						message: "comment has been updated"
+					}
+				}
+
+				return {
+					success: false,
+					message: "Access Denied!"				
+				}
+			}
+		},
+
+		deleteComment: {
+			type: ActionType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				id: { type: new GraphQLNonNull(GraphQLID) }
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if (data.error) {
+					return {
+						success: false,
+						message: "Invalid token!"
+					}
+				}
+				let user = await User.findById(data.id)
+				let comment = await Comment.findById(args.id)
+
+				if (user && comment && user._id === comment.userId) {
+					let comments = Comment.find({ parentId: comment._id })
+					comments.map(child => {child.remove()})
+					await comment.remove()
+
+					return {
+						success: true,
+						messahe: "comment is deleted"
+					}
+				}
+
+				return {
+					success: false,
+					message: "Access Denied!"				
+				}
+			}
+		},
+
+		upvote: {
+			type: ActionType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				id: { type: new GraphQLNonNull(GraphQLString) }
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if (data.error) {
+					return {
+						success: false,
+						message: "Invalid Token"
+					}
+				}
+
+				let user = User.findById(data.id)
+				let post = Post.findById(args.id)
+
+				if(user && post) {
+					let vote = Vote.find({ userId: user._id, postId: post._id })
+					if(vote) {
+						let value = vote.value
+						switch(value) {
+							// if current state = downvoted
+							case -1:
+								post.values += 2
+								vote.value = 1
+							break
+				
+							// if current state = null
+							case 0:
+								post.values += 1
+								vote.value = 1
+							break
+
+							// if current state = upvoted
+							case 1:
+								post.values -= 1
+								vote.value = 0
+							break
+						}
+
+						return {
+							success: true,
+							message: "updated"
+						}
+					}
+
+					vote = new Vote({
+						userId: user._id,
+						postId: post._id,
+						value: 1
+					})
+
+					post.votes += 1
+
+					return vote.save()
+				}
+
+				return {
+					success: false,
+					message: "Access Denied!"
+				}
+			}
+		},
+
+		downvote: {
+			type: ActionType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				id: { type: new GraphQLNonNull(GraphQLString) }
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+				if (data.error) {
+					return {
+						success: false,
+						message: "Invalid Token"
+					}
+				}
+
+				let user = User.findById(data.id)
+				let post = Post.findById(args.id)
+
+				if(user && post) {
+					let vote = Vote.find({ userId: user._id, postId: post._id })
+					if(vote) {
+						let value = vote.value
+						switch(value) {
+							// if current state = downvoted
+							case -1:
+								post.values += 1
+								vote.value = 0
+							break
+
+							// if current state = null
+							case 0:
+								post.values -= 1
+								vote.value = -1
+							break
+
+							// if current state = upvoted
+							case 1:
+								post.values -= 2
+								vote.value = -1
+							break
+						}
+
+						return {
+							success: true,
+							message: "updated"
+						}
+					}
+
+					vote = new Vote({
+						userId: user._id,
+						postId: post._id,
+						value: -1
+					})
+
+					post.votes -= 1
+
+					return vote.save()
+				}
+
+				return {
+					success: false,
+					message: "Access Denied!"
+				}
+		},
 	}
+}
 })
 
 module.exports = new GraphQLSchema({

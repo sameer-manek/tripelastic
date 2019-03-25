@@ -9,6 +9,8 @@ const postSchema = new Schema({
 	containerId: { type: ObjectId, required: false },
 	userId: { type: ObjectId, required: true },
 	votes: { type: Number, required: true, default: 0 },
+	createdAt: { type: Date, required: true },
+	updatedAt: { type: Date, required: true }
 })
 
 module.exports = mongoose.model("Post", postSchema)
