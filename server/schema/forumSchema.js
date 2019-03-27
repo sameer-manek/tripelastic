@@ -23,6 +23,7 @@ const {
 const PostType = new GraphQLObjectType({
 	name: "Post",
 	fields: () => ({
+		id: { type: GraphQLID },
 		title: { type: new GraphQLNonNull(GraphQLString) },
 		content: { 
 			type: new GraphQLNonNull(GraphQLString)
@@ -42,13 +43,16 @@ const PostType = new GraphQLObjectType({
 		votes: { type: GraphQLInt },
 		comments: {
 			type: GraphQLList(CommentType)
-		}
+		},
+		createdAt: { type: GraphQLString },
+		updatedAt: { type: GraphQLString }
 	})
 })
 
 const CommentType = new GraphQLObjectType({
 	name: "Comment",
 	fields: () => ({
+		id: { type: GraphQLID },
 		content: { type: new GraphQLNonNull(GraphQLString) },
 		user: { 
 			type: new GraphQLNonNull(UserType),
@@ -57,7 +61,7 @@ const CommentType = new GraphQLObjectType({
 			}
 		},
 		parent: { 
-			type: new GraphQLNonNull(CommentType),
+			type: CommentType,
 			resolve: async function(parent, args) {
 				return await Comment.findById(parent.parentId)
 			}

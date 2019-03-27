@@ -20,6 +20,7 @@ const {
 const EntityType = new GraphQLObjectType ({
 	name: "Entity",
 	fields: () => ({
+		id: { type: GraphQLID },
 		name: { type: new GraphQLNonNull(GraphQLString) },
 		container: { 
 			type: ContainerType,
@@ -28,7 +29,7 @@ const EntityType = new GraphQLObjectType ({
 			}
 		},
 		type: { type: new GraphQLNonNull(GraphQLString) },
-		detail: { type: new GraphQLNonNull(GraphQLString) },
+		detail: { type: GraphQLID },
 		start: { type: GraphQLString },
 		end: { type: GraphQLString }
 	})

@@ -13,6 +13,7 @@ const {
 const DestinationType = new GraphQLObjectType({
 	name: "Destination",
 	fields: () => ({
+		id: { type: GraphQLID },
 		address: { type: new GraphQLNonNull(GraphQLString) },
 		city: { type: new GraphQLNonNull(GraphQLString) },
 		country: { type: new GraphQLNonNull(GraphQLString) },

@@ -13,6 +13,7 @@ const {
 const TransportType = new GraphQLObjectType({
 	name: "Tranport",
 	fields: () => ({
+		id: { type: GraphQLID },
 		type: { type: new GraphQLNonNull(GraphQLString) },
 		pickupAddress: { type: new GraphQLNonNull(GraphQLString) },
 		pickupCity: { type: new GraphQLNonNull(GraphQLString) },

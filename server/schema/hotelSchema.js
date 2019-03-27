@@ -13,6 +13,7 @@ const {
 const HotelType = new GraphQLObjectType({
 	name: "Hotel",
 	fields: () => ({
+		id: { type: GraphQLID },
 		address: { type: new GraphQLNonNull(GraphQLString) },
 		city: { type: new GraphQLNonNull(GraphQLString) },
 		country: { type: new GraphQLNonNull(GraphQLString) },

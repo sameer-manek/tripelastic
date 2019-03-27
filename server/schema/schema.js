@@ -95,7 +95,7 @@ const RootQuery = new GraphQLObjectType({
 					return {
 						success: true,
 						message: "found user",
-						token: jwt.sign({ id: user._id }, privateKey, {}),
+						token: jwt.sign({ id: user.id }, privateKey, {}),
 						username: user.username
 					}
 				} else {
@@ -485,12 +485,12 @@ const Mutation = new GraphQLObjectType({
 				name: { type: new GraphQLNonNull(GraphQLString) },
 				containerId: { type: new GraphQLNonNull(GraphQLID) },
 				type: { type: new GraphQLNonNull(GraphQLString) },
-				detail: { type: new GraphQLNonNull(GraphQLString) },
+				detail: { type: GraphQLID },
 				start: { type: GraphQLString },
 				end: { type: GraphQLString }
 			},
 			resolve: async function(parent, args) {
-				let data = jwt.verify(token, privateKey)
+				let data = jwt.verify(args.token, privateKey)
 				let userId = data.id
 				let container = await Container.findById(args.containerId)
 				if (container && container.userId.toString() === userId) {
@@ -537,7 +537,7 @@ const Mutation = new GraphQLObjectType({
 						room: args.room
 					})
 
-					let store = hotel.save()
+					let store = await hotel.save()
 
 					entity.detail = store.id
 					await entity.save()
@@ -587,7 +587,7 @@ const Mutation = new GraphQLObjectType({
 						seat: args.seat
 					})
 
-					let store = transport.save()
+					let store = await transport.save()
 
 					entity.detail = store.id
 					await entity.save()
@@ -624,7 +624,7 @@ const Mutation = new GraphQLObjectType({
 						room: args.room
 					})
 
-					let store = destination.save()
+					let store = await destination.save()
 
 					entity.detail = store.id
 					await entity.save()
@@ -657,7 +657,7 @@ const Mutation = new GraphQLObjectType({
 				let entity = await Entity.findById(args.id)
 				if (user && entity) {
 					let container = await Container.findById(entity.containerId)
-					if (container.userId === user._id) {
+					if (container.userId.toString() === user.id.toString()) {
 						// change the entity details
 						entity.name = args.name ? args.name : entity.name
 						entity.detail = args.detail ? args.detail : entity.detail
@@ -673,7 +673,7 @@ const Mutation = new GraphQLObjectType({
 				}
 				return {
 					success: false,
-					message: "Access denied"
+					message: entity.name
 				}
 			}
 		},
@@ -683,9 +683,9 @@ const Mutation = new GraphQLObjectType({
 			args: {
 				token: { type: new GraphQLNonNull(GraphQLString) },
 				id: { type: new GraphQLNonNull(GraphQLID) },
-				address: { type: new GraphQLNonNull(GraphQLString) },
-				city: { type: new GraphQLNonNull(GraphQLString) },
-				country: { type: new GraphQLNonNull(GraphQLString) },
+				address: { type: GraphQLString },
+				city: { type: GraphQLString },
+				country: { type: GraphQLString },
 				pincode: { type: GraphQLInt },
 				location: { type: GraphQLString },
 				room: { type: GraphQLString }
@@ -755,7 +755,7 @@ const Mutation = new GraphQLObjectType({
 				let user = await User.findById(data.id)
 				let transport = Transport.findById(id)
 
-				if(user && transport && transport.userId === user._id) {
+				if(user && transport && transport.userId === user.id) {
 					// update transport
 					transport.type = args.type ? args.type : transport.type
 					transport.pickupAddress = args.pickupAddress ? args.pickupAddress : transport.pickupAddress
@@ -807,7 +807,7 @@ const Mutation = new GraphQLObjectType({
 				let destination = await Destination.findById(args.id)
 				let user = await User.findById(data.id)
 
-				if(user && Destination && Destination.userId.toString() === data.id) {
+				if(user && Destination && destination.userId.toString() === data.id) {
 					// update Destination
 					destination.address = args.address ? args.address : destination.address
 					destination.city = args.city ? args.city : destination.city
@@ -818,7 +818,7 @@ const Mutation = new GraphQLObjectType({
 					await destination.save()
 					return {
 						success: true,
-						message: "hotel updated successfully!"
+						message: "destination updated successfully!"
 					}
 				}
 			}
@@ -840,9 +840,9 @@ const Mutation = new GraphQLObjectType({
 				}
 			
 				let user = await User.findById(data.id)
-				let entity = await Entity.findById(id)
-				let container = await Container.findById(entity.containerId.toString())
-				if(user && entity && container.userId === user._id) {
+				let entity = await Entity.findById(args.id)
+				let container = entity ? await Container.findById(entity.containerId.toString()) : null
+				if(user && entity && container && container.userId.toString() === user.id.toString()) {
 					await entity.remove()
 					return {
 						success: true,
@@ -879,7 +879,7 @@ const Mutation = new GraphQLObjectType({
 					let post = new Post({
 						title: args.title,
 						content: args.content,
-						userId: user._id.toString(),
+						userId: user.id.toString(),
 						containerId: container,
 						createdAt: date,
 						updatedAt: date
@@ -913,7 +913,7 @@ const Mutation = new GraphQLObjectType({
 				let post = await Post.findById(args.id)
 				let container = args.containerId ? ( await Container.findById(args.containerId) ? args.containerId : post.containerId ) : post.containerId
 
-				if(user && post && post.userId === user._id) {
+				if(user && post && post.userId.toString() === user.id.toString()) {
 					post.title = args.title ? args.title : post.title
 					post.content = args.content ? args.content : post.content
 					post.containerId = container
@@ -949,7 +949,11 @@ const Mutation = new GraphQLObjectType({
 				}
 				let user = await User.findById(data.id)
 				let post = await Post.findById(args.id)
-				if(user && post && post.userId === user._id) {
+				if(user && post && post.userId.toString() === user.id.toString()) {
+					// delete comments
+
+					let comments = await Comment.find({ postId: post.id.toString() })
+					await comments.map(comment => comment.remove())
 					await post.remove()
 					return {
 						success: true,
@@ -969,7 +973,7 @@ const Mutation = new GraphQLObjectType({
 				token: { type: new GraphQLNonNull(GraphQLString) },
 				content: { type: new GraphQLNonNull(GraphQLString) },
 				postId: { type: new GraphQLNonNull(GraphQLID) },
-				parentId: { type: new GraphQLNonNull(GraphQLID) }
+				parentId: { type: GraphQLID }
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
@@ -981,15 +985,15 @@ const Mutation = new GraphQLObjectType({
 				}
 				let user = await User.findById(data.id)
 				let post = await Post.findById(args.postId)
-				let parent = args.parentId ? ( await Comment.findById(args.parentId) ? args.parentId : null ) : null
+				let parentId = args.parentId ? ( await Comment.findById(args.parentId) ? args.parentId : null ) : null
 				let date = new Date
 
 				if (user && post) {
 					let comment = new Comment({
 						content: args.content,
-						userId: user._id,
+						userId: user.id,
 						postId: post._id,
-						parentId: parent,
+						parentId: parentId,
 						votes: 0,
 						createdAt: date,
 						updatedAt: date
@@ -1020,7 +1024,7 @@ const Mutation = new GraphQLObjectType({
 				let user = await User.findById(data.id)
 				let comment = await Comment.findById(args.id)
 
-				if (user && comment && user._id === comment.userId) {
+				if (user && comment && user.id.toString() === comment.userId.toString()) {
 					comment.content = args.content
 
 					return {
@@ -1053,9 +1057,9 @@ const Mutation = new GraphQLObjectType({
 				let user = await User.findById(data.id)
 				let comment = await Comment.findById(args.id)
 
-				if (user && comment && user._id === comment.userId) {
+				if (user && comment && user.id.toString() === comment.userId.toString()) {
 					let comments = Comment.find({ parentId: comment._id })
-					comments.map(child => {child.remove()})
+					await comments.map(child => {child.remove()})
 					await comment.remove()
 
 					return {
@@ -1066,7 +1070,7 @@ const Mutation = new GraphQLObjectType({
 
 				return {
 					success: false,
-					message: "Access Denied!"				
+					message: "Access Denied!"			
 				}
 			}
 		},
@@ -1090,7 +1094,7 @@ const Mutation = new GraphQLObjectType({
 				let post = Post.findById(args.id)
 
 				if(user && post) {
-					let vote = Vote.find({ userId: user._id, postId: post._id })
+					let vote = Vote.find({ userId: user.id, postId: post._id })
 					if(vote) {
 						let value = vote.value
 						switch(value) {
@@ -1113,6 +1117,9 @@ const Mutation = new GraphQLObjectType({
 							break
 						}
 
+						await post.save()
+						await vote.save()
+
 						return {
 							success: true,
 							message: "updated"
@@ -1120,14 +1127,19 @@ const Mutation = new GraphQLObjectType({
 					}
 
 					vote = new Vote({
-						userId: user._id,
+						userId: user.id,
 						postId: post._id,
 						value: 1
 					})
 
 					post.votes += 1
+					await post.save()
+					await vote.save()
 
-					return vote.save()
+					return {
+						success: true,
+						message: ""
+					}
 				}
 
 				return {
@@ -1156,7 +1168,7 @@ const Mutation = new GraphQLObjectType({
 				let post = Post.findById(args.id)
 
 				if(user && post) {
-					let vote = Vote.find({ userId: user._id, postId: post._id })
+					let vote = Vote.find({ userId: user.id, postId: post._id })
 					if(vote) {
 						let value = vote.value
 						switch(value) {
@@ -1179,6 +1191,9 @@ const Mutation = new GraphQLObjectType({
 							break
 						}
 
+						await post.save()
+						await vote.save()
+
 						return {
 							success: true,
 							message: "updated"
@@ -1186,14 +1201,20 @@ const Mutation = new GraphQLObjectType({
 					}
 
 					vote = new Vote({
-						userId: user._id,
+						userId: user.id,
 						postId: post._id,
 						value: -1
 					})
 
 					post.votes -= 1
 
-					return vote.save()
+					await post.save()
+					await vote.save()
+
+					return {
+						success: true,
+						message: ""
+					}
 				}
 
 				return {
@@ -1201,8 +1222,7 @@ const Mutation = new GraphQLObjectType({
 					message: "Access Denied!"
 				}
 		},
-	}
-}
+	}}
 })
 
 module.exports = new GraphQLSchema({
