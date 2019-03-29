@@ -44,7 +44,7 @@ const PostType = new GraphQLObjectType({
 		comments: {
 			type: GraphQLList(CommentType),
 			resolve: async function (parent, args) {
-				let comments = await Comment.find({ postId: parent.id.toString() })
+				let comments = await Comment.find({ postId: parent.id.toString(), parentId: null })
 				comments.map(comment => comment.editable = (parent.editable === true && comment.userId.toString() === parent.userId.toString()) ? true : false)
 				return comments
 			}
@@ -68,10 +68,10 @@ const CommentType = new GraphQLObjectType({
 				return await User.findById(parent.userId)
 			}
 		},
-		parent: { 
-			type: CommentType,
+		children: { 
+			type: GraphQLList(CommentType),
 			resolve: async function(parent, args) {
-				return await Comment.findById(parent.parentId)
+				return await Comment.find({ parentId: parent.id })
 			}
 		},
 		post: { 
