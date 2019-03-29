@@ -49,3 +49,22 @@ export const TripsMenu = function (props) {
 		</aside>
 	)
 }
+
+export const PostsMenu = function (props) {
+	return (
+		<aside className="menu">
+			<p className="menu-label">
+				Container Options
+			</p>
+
+			<ul className="menu-list">
+				<li>
+					<a onClick={() => props.toggle("all")} className="has-icon"><i className="icon lnr lnr-layers" style={{ color: "skyblue", fontWeight: "900" }}></i> All posts</a>
+				</li>
+				<li>
+					<a onClick={() => props.toggle("my")} className="has-icon"><i className="icon lnr lnr-highlight" style={{ color: "gold", fontWeight: "900" }}></i> My posts</a>
+				</li>
+			</ul>
+		</aside>
+	)
+}

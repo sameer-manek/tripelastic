@@ -81,10 +81,6 @@ const ActionType = new GraphQLObjectType({
 const RootQuery = new GraphQLObjectType({
 	name: 'RootQueryType',
 	fields: {
-
-		// user related queries
-
-		// login user : generate and pass security token
 		login: {
 			type: ActiveUserType,
 			args: { email: { type: new GraphQLNonNull(GraphQLString) }, password: { type: new GraphQLNonNull(GraphQLString) } },
@@ -95,7 +91,7 @@ const RootQuery = new GraphQLObjectType({
 					return {
 						success: true,
 						message: "found user",
-						token: jwt.sign({ id: user.id }, privateKey, {}),
+						token: jwt.sign({ id: user.id }, privateKey, { expiresIn: '6h' }),
 						username: user.username
 					}
 				} else {
@@ -108,6 +104,29 @@ const RootQuery = new GraphQLObjectType({
 				}
 			}
 
+		},
+
+		checkToken: {
+			type: ActionType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) }
+			},
+			resolve: function(parent, args) {
+				let token = args.token
+				let data = verifyToken(token)
+
+				if(data) {
+					return {
+						success: true,
+						message: "token is valid"
+					}
+				}
+
+				return {
+					success: false,
+					message: "token ain't valid"
+				}
+			}
 		},
 		
 		// fetch details of logged in user
@@ -126,13 +145,16 @@ const RootQuery = new GraphQLObjectType({
 
 		verifyEmail: {
 			type: ActionType,
-			args: { token: { type: GraphQLString } },
+			args: { 
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				email: { type: GraphQLString }
+			},
 			resolve: async function (parent, args) {
 				let data = jwt.verify(args.token, privateKey)
 				if(data) {
 					let user = await User.findById(data.id)
 					if(user) {
-						let email = await user.email
+						let email = args.email ? args.email : await user.email
 						console.log(email)
 						let token = jwt.sign({ email }, privateKey, { expiresIn: '48h' })
 						// send email
@@ -246,10 +268,12 @@ const RootQuery = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if (data.error) {
+				if (!data) {
 					return new Error ("invalid token")
 				}
-				return await Post.find({ userId: data.id })
+				let posts = await Post.find({ userId: data.id })
+				await posts.map(post => post.editable = true)
+				return posts
 			}
 		},
 
@@ -260,10 +284,12 @@ const RootQuery = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if (data.error) {
+				if (!data) {
 					return new Error ("invalid token")
 				}
-				return await Post.find({ })
+				let posts = await Post.find({ })
+				await posts.map(post => post.editable = post.userId.toString() === data.id ? true : false)
+				return posts
 			}
 		},
 	}
@@ -525,7 +551,7 @@ const Mutation = new GraphQLObjectType({
 			resolve: async (parent, args) => {
 				let data = await verifyToken(args.token)
 				let entity = await Entity.findById(args.entity)
-				if (!data.error && entity) {
+				if (data && entity) {
 					// register the hotel and put that into the entity
 					let hotel = new Hotel({
 						userId: data.id,
@@ -569,7 +595,7 @@ const Mutation = new GraphQLObjectType({
 			resolve: async (parent, args) => {
 				let data = await verifyToken(args.token)
 				let entity = await Entity.findById(args.entity)
-				if (!data.error && entity) {
+				if (data && entity) {
 					// register the Transport and put that into the entity
 					let transport = new Transport({
 						type: args.type,
@@ -612,7 +638,7 @@ const Mutation = new GraphQLObjectType({
 			resolve: async (parent, args) => {
 				let data = await verifyToken(args.token)
 				let entity = await Entity.findById(args.entity)
-				if (!data.error && entity) {
+				if (data && entity) {
 					// register the destination and put that into the entity
 					let destination = new Destination({
 						address: args.address,
@@ -647,7 +673,7 @@ const Mutation = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if (data.error) {
+				if (!data) {
 					return {
 						success: false,
 						message: "Invalid token"
@@ -692,7 +718,7 @@ const Mutation = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if(data.error) {
+				if(!data) {
 					return {
 						success: false,
 						message: "Invalid Token"
@@ -745,7 +771,7 @@ const Mutation = new GraphQLObjectType({
 			},
 			resolve: async function (parent, args) {
 				let data = verifyToken(args.token)
-				if (data.error) {
+				if (!data) {
 					return {
 						success: false,
 						message: "Invalid Token!"
@@ -797,7 +823,7 @@ const Mutation = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if(data.error) {
+				if(!data) {
 					return {
 						success: false,
 						message: "Invalid Token"
@@ -832,7 +858,7 @@ const Mutation = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if(data.error) {
+				if(!data) {
 					return {
 						success: false,
 						message: "Invalid token"
@@ -869,7 +895,7 @@ const Mutation = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if (data.error) {
+				if (!data) {
 					return new Error ('Invalid Token!')
 				}
 				let user = await User.findById(data.id)
@@ -903,7 +929,7 @@ const Mutation = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if (data.error) {
+				if (!data) {
 					return {
 						success: false,
 						message: "Invalid token!"
@@ -941,7 +967,7 @@ const Mutation = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if (data.error) {
+				if (!data) {
 					return {
 						success: false,
 						message: "Invalid token!"
@@ -977,7 +1003,7 @@ const Mutation = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if (data.error) {
+				if (!data) {
 					return {
 						success: false,
 						message: "Invalid token!"
@@ -1015,7 +1041,7 @@ const Mutation = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if (data.error) {
+				if (!data) {
 					return {
 						success: false,
 						message: "Invalid token!"
@@ -1048,7 +1074,7 @@ const Mutation = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if (data.error) {
+				if (!data) {
 					return {
 						success: false,
 						message: "Invalid token!"
@@ -1083,18 +1109,18 @@ const Mutation = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if (data.error) {
+				if (!data) {
 					return {
 						success: false,
 						message: "Invalid Token"
 					}
 				}
 
-				let user = User.findById(data.id)
-				let post = Post.findById(args.id)
+				let user = await User.findById(data.id)
+				let post = await Post.findById(args.id)
 
 				if(user && post) {
-					let vote = Vote.find({ userId: user.id, postId: post._id })
+					let vote = await Vote.findOne({ userId: user.id, postId: post.id })
 					if(vote) {
 						let value = vote.value
 						switch(value) {
@@ -1128,7 +1154,7 @@ const Mutation = new GraphQLObjectType({
 
 					vote = new Vote({
 						userId: user.id,
-						postId: post._id,
+						postId: post.id,
 						value: 1
 					})
 
@@ -1157,18 +1183,18 @@ const Mutation = new GraphQLObjectType({
 			},
 			resolve: async function(parent, args) {
 				let data = verifyToken(args.token)
-				if (data.error) {
+				if (!data) {
 					return {
 						success: false,
 						message: "Invalid Token"
 					}
 				}
 
-				let user = User.findById(data.id)
-				let post = Post.findById(args.id)
+				let user = await User.findById(data.id)
+				let post = await Post.findById(args.id)
 
 				if(user && post) {
-					let vote = Vote.find({ userId: user.id, postId: post._id })
+					let vote = await Vote.findOne({ userId: user.id, postId: post.id })
 					if(vote) {
 						let value = vote.value
 						switch(value) {
@@ -1202,7 +1228,7 @@ const Mutation = new GraphQLObjectType({
 
 					vote = new Vote({
 						userId: user.id,
-						postId: post._id,
+						postId: post.id,
 						value: -1
 					})
 

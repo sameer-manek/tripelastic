@@ -29,7 +29,7 @@ const PostType = new GraphQLObjectType({
 			type: new GraphQLNonNull(GraphQLString)
 		},
 		container: { 
-			type: new GraphQLNonNull(ContainerType),
+			type: ContainerType,
 			resolve: async function(parent, args) {
 				return await Container.findById(parent.containerId)
 			}
@@ -42,10 +42,18 @@ const PostType = new GraphQLObjectType({
 		},
 		votes: { type: GraphQLInt },
 		comments: {
-			type: GraphQLList(CommentType)
+			type: GraphQLList(CommentType),
+			resolve: async function (parent, args) {
+				let comments = await Comment.find({ postId: parent.id.toString() })
+				comments.map(comment => comment.editable = (parent.editable === true && comment.userId.toString() === parent.userId.toString()) ? true : false)
+				return comments
+			}
 		},
 		createdAt: { type: GraphQLString },
-		updatedAt: { type: GraphQLString }
+		updatedAt: { type: GraphQLString },
+		editable: { 
+			type: GraphQLBoolean,
+		},
 	})
 })
 
@@ -72,7 +80,8 @@ const CommentType = new GraphQLObjectType({
 				return await Post.findById(parent.postId)
 			}
 		},
-		votes: { type: GraphQLInt }
+		votes: { type: GraphQLInt },
+		editable: { type: GraphQLBoolean }
 	})
 })
 

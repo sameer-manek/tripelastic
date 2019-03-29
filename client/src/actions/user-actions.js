@@ -101,15 +101,42 @@ export const userLogout = function() {
 export function calloutAction() {
 
 	if(sessionStorage.username && sessionStorage.token){
-		// verify token
-		return {
-			type: "USER_RESEAT",
-			payload: {
-				loggedIn: true,
-				token: sessionStorage.token,
-				username: sessionStorage.username
+		let query = `query{
+		  checkToken(token: "`+sessionStorage.token+`") {
+		    success
+		    message
+		  }
+		}`
+
+		return dispatch => axios({
+			url: URI,
+			method: "post",
+			data: {
+				query
 			}
-		}
+		}).then(({ data }) => {
+			data = data.data.checkToken
+			if (data.success === true) {
+				dispatch ({
+					type: "USER_RESEAT",
+					payload: {
+						loggedIn: true,
+						token: sessionStorage.token,
+						username: sessionStorage.username
+					}
+				})
+			} else {
+				sessionStorage.clear()
+				dispatch ({
+					type: USER_LOGOUT,
+					payload: {
+						loggedIn: false,
+						token: null,
+						username: null
+					}
+				})
+			}
+		}).catch(err => console.log(err))
 	} else {
 		return {
 			type: "NO_ACTION"

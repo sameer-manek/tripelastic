@@ -11,6 +11,7 @@ const schema = require('./schema/schema')
 const root = {}
 const { privateKey } = require("./config")
 
+
 mongoose.connect('mongodb+srv://axiom:Password@tripelastic-1i8do.mongodb.net/test?retryWrites=true', { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: true })
 	.then(() => {
 		console.log("connection has been eshtablished")

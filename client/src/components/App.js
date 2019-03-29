@@ -7,6 +7,7 @@ import Register from './register'
 import Profile from './user/Profile'
 import Comm from './user/comm'
 import Trips from './user/trips'
+import browseContainer from './Container/browse'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -28,7 +29,11 @@ class App extends Component {
 	constructor(props) {
 		super(props)
 
-		this.state = {}
+		this.state = {
+			loading: false
+		}
+
+		this.removeLoader = this.removeLoader.bind(this)
 	}
 
 	componentDidMount() {
@@ -37,15 +42,25 @@ class App extends Component {
 		}
 	}
 
+	removeLoader() {
+		this.setState({
+			loading: false
+		})
+	}
+
 	render() {
+		if(this.state.loading === true) {
+			return (<h2 className="title">loading...</h2>)
+		}
 		return(
 			<div>
 				<Route exact path="/" component={Home} />
-				<Route exact path="/login" component={Login} />
+				<Route exact path="/login" removeLoader={this.removeLoader} component={Login} />
 				<Route exact path="/register" component={Register} />
 				<Route path="/user/profile" component={Profile} />
 				<Route path="/user/trips" component={Trips} />
 				<Route path='/home' component={Comm} />
+				<Route path="/container" component={browseContainer} />
 			</div>
 		)
 	}

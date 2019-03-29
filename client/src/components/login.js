@@ -12,7 +12,8 @@ import styles from '../assets/styles/login.css'
 
 function mapStateToProps (state) {
 	return ({
-		user: state.user
+		user: state.user,
+		error: state.error
 	})
 }
 
@@ -30,7 +31,8 @@ class LoginComponent extends Component {
 			email: "",
 			password: "",
 			emailError: "",
-			passwordError: ""
+			passwordError: "",
+			loading: false
 		}
 
 		this.handleEmailInput = this.handleEmailInput.bind(this)
@@ -57,32 +59,44 @@ class LoginComponent extends Component {
 	}
 
 	handleIOClick(e) {
+		this.setState({
+			loading: true
+		})
 		e.preventDefault()
 		if(this.state.email === "") {
 			return this.setState({
-				emailError: "email is required"
+				emailError: "email is required",
+				loading: false
 			})
 		}
 
 		if(this.state.password === "") {
 			return this.setState({
-				passwordError: "password is required"
+				passwordError: "password is required",
+				loading: false
 			})
 		}
 
 		this.props.userLogin(this.state.email, this.state.password)
+		this.setState({
+			loading: false
+		})
 	}
 
 	render() {
 		
 		if(this.props.user.loggedIn === true) {
-			return <Redirect to="/user/trips" />
+			return <Redirect to="/home" />
 		}
 		
 		let message
 
 		if (this.props.user.error) {
 			message = <article className="message is-danger"><div className="message-body">{this.props.user.error}</div></article>
+		}
+
+		if (this.props.error.message) {
+			message = <article className="message is-danger"><div className="message-body">{this.props.error.message}</div></article>
 		}
 
 		return(

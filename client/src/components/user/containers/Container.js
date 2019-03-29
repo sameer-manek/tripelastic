@@ -35,9 +35,14 @@ class Container extends Component {
 				</div>
 
 				<footer className="card-footer">
-					<a href="#" className="card-footer-item">Edit</a>
-					<a href="#" className="card-footer-item">Share</a>
-					<a href="#" className="card-footer-item">{option}</a>
+					<Link to={{
+						pathname: "/container",
+						state: {
+							id: this.props.data.id
+						}
+					}} className="card-footer-item">Browse</Link>
+					<Link to="/editcontainer" className="card-footer-item">Edit</Link>
+					<a href="#" className="card-footer-item">{option}</a> 
 				</footer>
 			</div>
 		)
