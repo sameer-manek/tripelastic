@@ -17,7 +17,7 @@ import axios from 'axios'
 function mapStateToProps(state) {
 	return {
 		user: state.user,
-		userinfo: state.userinfo
+		userinfo: state.userinfo,
 	}
 }
 
