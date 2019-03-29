@@ -36,7 +36,6 @@ export const fetchPosts = function () {
 			}
 		}).then(({ data }) => {
 			data = data.data.allPosts
-			console.log("POSTS", data)
 			dispatch ({
 				type: "FETCH_POSTS",
 				payload: data

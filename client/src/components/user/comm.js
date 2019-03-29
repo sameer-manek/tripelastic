@@ -1,24 +1,23 @@
 import React, { Component } from 'react'
-import { Redirect } from 'react-router-dom'
-
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
+import axios from 'axios'
 
 import Bar from './bar'
 import {PostsMenu} from './menus'
 import { fetchPosts } from '../../actions/forum-actions'
-import PostList from './forum/postList'
 
-
-function mapStateToProps(state) {
-	return {
-		user: state.user,
-		posts: state.posts
+// rendering post
+class Post extends Component {
+	constructor(props) {
+		super(props) 
 	}
-}
 
-function mapDispatchToProps(dispatch) {
-	return bindActionCreators({ fetchPosts }, dispatch)
+	render() {
+		return (
+			<div>
+				{this.props.post.id}
+			</div>
+		)
+	}
 }
 
 const columnBorder = {
@@ -32,21 +31,51 @@ class Comm extends Component {
 		this.state = {
 			selected: "all",
 			selectedPost: null,
-			posts: []
+			posts: [],
+			loading: true
 		}
 
 		this.toggleSelected = this.toggleSelected.bind(this)
-		this.selectPost = this.selectPost.bind(this)
 	}
 
 	componentDidMount() {
-		this.props.fetchPosts()
-	}
+		let query = `query{
+		  allPosts(token: "`+ sessionStorage.token +`") {
+		    id
+		    title
+		    content
+		    user {
+		      username
+		    }
+		    container{
+		      id
+		      name
+		    }
+		    editable
+		    comments{
+		      id
+		      user{
+		        username
+		      }
+		      content
+		      editable
+		    }
+		  }
+		}`
 
-	componentWillReceiveProps (newProps) {
-		this.setState ({
-			posts: newProps.posts
-		})
+		axios({
+			url: "http://localhost:4000/api",
+			method: "post",
+			data: {
+				query
+			}
+		}).then(({ data }) => {
+			data = data.data.allPosts
+			this.setState({
+				posts: data,
+				loading: false
+			})
+		}).catch(err => console.log(err))
 	}
 
 	toggleSelected = function(newSelection) {
@@ -57,15 +86,8 @@ class Comm extends Component {
 		}
 	}
 
-	selectPost(post) {
-		if(this.state.selectPost !== post) {
-			this.setState({
-				selectPost: post
-			})
-		}
-	}
-
 	render() {
+		
 		return (
 			<div>
 				<Bar constrained />
@@ -80,7 +102,9 @@ class Comm extends Component {
 								<p className="menu-label">
 									{this.state.selected} posts <i style={{ color: "blue", cursor: "pointer", fontSize: "12px" }} className="lnr lnr-plus-circle"></i>
 								</p>
-								<PostList posts = {this.state.posts} />
+								{
+									this.state.posts.map(post => <Post post={post} />)
+								}
 							</div>
 							<div className="column is-two-thirds">
 								
@@ -93,4 +117,4 @@ class Comm extends Component {
 	}
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Comm)
+export default Comm
