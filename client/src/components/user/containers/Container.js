@@ -38,7 +38,8 @@ class Container extends Component {
 					<Link to={{
 						pathname: "/container",
 						state: {
-							id: this.props.data.id
+							data: this.props.data,
+							url: "/user/trips"
 						}
 					}} className="card-footer-item">Browse</Link>
 					<Link to="/editcontainer" className="card-footer-item">Edit</Link>

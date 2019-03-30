@@ -9,6 +9,11 @@ export const fetchContainers = function (token) {
 			id
 			name
 			detail
+			entities{
+				id
+				name
+				type
+			}
 			createdAt
 			category
 		}

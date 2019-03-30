@@ -86,7 +86,7 @@ class LoginComponent extends Component {
 	render() {
 		
 		if(this.props.user.loggedIn === true) {
-			return <Redirect to="/home" />
+			return <Redirect to="/user/trips" />
 		}
 		
 		let message
