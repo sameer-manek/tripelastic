@@ -14,6 +14,10 @@ export const fetchContainers = function (token) {
 				name
 				type
 			}
+			parent {
+				id
+				name
+			}
 			createdAt
 			category
 		}

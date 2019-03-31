@@ -82,16 +82,13 @@ class Trips extends Component {
 	}
 
 	componentWillReceiveProps(newProps) {
-		if (newProps.containers !== this.state.containers) {
-			this.setState({
-				containers: newProps.containers,
-				loading: false
-			})
-		}
+		this.setState({
+			containers: newProps.containers,
+			loading: false
+		})
 	}
 
 	render() {
-		let conts = this.props.containers
 		let searchComponent
 
 		if(this.state.selected !== "create") {
@@ -100,9 +97,9 @@ class Trips extends Component {
 			searchComponent = null
 		}
 
-		let containerSpace = this.state.searching === true ? <h2 className="subtitle">searching..</h2> : <Containers containers={conts} searchQuery={this.state.search} category={this.state.selected} deleteContainer={this.deleteContainer} />
+		let containerSpace = this.state.searching === true ? <h2 className="subtitle">searching..</h2> : <Containers containers={this.state.containers} searchQuery={this.state.search} category={this.state.selected} deleteContainer={this.deleteContainer} />
 		if (this.state.selected === "create") {
-			containerSpace = <CreateContainer inherit={this.state.inherit} fetchContainers={this.fetchContainers} />
+			containerSpace = <CreateContainer inherit={this.state.inherit} />
 		}
 
 		if(this.state.loading === true) {

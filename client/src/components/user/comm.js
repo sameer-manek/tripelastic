@@ -9,8 +9,6 @@ import SelectedPost from './forum/selectedPost'
 
 // rendering post
 
-
-
 class Comm extends Component {
 	constructor(props) {
 		super(props)

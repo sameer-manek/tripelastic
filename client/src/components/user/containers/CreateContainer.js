@@ -103,10 +103,6 @@ class CreateContainer extends Component {
 		}).catch(err => console.log(err))
 	}
 
-	async componentWillUnmount() {
-		await this.props.fetchContainers()
-	}
-
 	render() {
 		let message
 		if (this.state.error.state === true) {

@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
+
+import axios from 'axios'
 
 import Bar from '../user/bar'
 
@@ -32,21 +34,224 @@ function Entity(props) {
 	)
 }
 
+function DeleteContainerModal(props) {
+	return (
+		<div className="modal is-active">
+			<div className="modal-background"></div>
+			<div className="modal-content">
+				<p>Are you sure you want to delete this container?</p>
+				<div className="level">
+					<span className="level-right">
+						<button className="button is-danger">Delete</button>
+					</span>
+				</div>
+			</div>
+			<button class="modal-close is-large" aria-label="close"></button>
+		</div>
+	)
+}
+
 class browseContainerComponent extends Component {
 	constructor(props) {
 		super(props)
 
 		this.state = {
 			loading: false,
+			mode: "browse",
+			updating: false,
+			data: this.props.location.state.data,
+			error: {
+				state: false,
+				message: ""
+			},
+			success: {
+				state: false,
+				message: ""
+			}
 		}
+
+		this.toggleMode = this.toggleMode.bind(this)
+		this.handleInputEvent = this.handleInputEvent.bind(this)
+		this.handleUpdateEvent = this.handleUpdateEvent.bind(this)
+		this.deleteContainer = this.deleteContainer.bind(this)
 	}
 
 	componentWillReceiveProps(newProps) {
 		this.setState(newProps.location.state)
 	}
 
+	async deleteContainer() {
+		let query = `mutation{
+		  deleteContainer(token: "`+ sessionStorage.token +`", containerId: "`+ this.state.data.id +`"){
+		    success
+		    message
+		  }
+		}`
+		await axios({
+			url: "http://localhost:4000/api",
+			method: "post",
+			data: {
+				query
+			}
+		}).then (({data}) => {
+			data = data.data.deleteContainer
+			if(data.success === true) {
+				this.setState({
+					back: true
+				})
+			}
+		})
+	}
+
+	toggleMode() {
+		if(this.state.mode === "edit") {
+			let data = Object.assign({}, this.state.data)
+			data.name = this.props.location.state.data.name
+			data.detail = this.props.location.state.data.detail
+			this.setState({
+				data,
+				mode: "browse"
+			})
+		} else {
+			this.setState({
+				mode: "edit"
+			})
+		}
+	}
+
+	handleInputEvent(e) {
+		let data = Object.assign({}, this.state.data)
+		switch (e.target.id) {
+			case "containerName":
+				data.name = e.target.value
+				this.setState({
+					data
+				})
+				/*
+					OR..
+					this.setState(prevState => {
+						... prevState,
+						name: x,
+						detail: y
+					})
+				*/
+			break
+				
+			case "containerDetail":
+				data.detail = e.target.value
+				this.setState({
+					data
+				})
+			break
+
+			default:
+				return false
+			break
+		}
+	}
+
+	async handleUpdateEvent() {
+		if(this.state.data.name === "" || this.state.data.detail === "") {
+			return this.setState({
+				error: {
+					state: true,
+					message: "all fields are requied"
+				}
+			})
+		}
+		
+		let query = `mutation{
+		  updateContainer(token: "`+ sessionStorage.token +`", containerId: "`+ this.state.data.id +`", name: "`+ this.state.data.name +`", detail: "`+ this.state.data.detail +`") {
+		    success
+		    message
+		  }
+		}`
+		
+		await axios({
+			url: "http://localhost:4000/api",
+			method: "post",
+			data: {
+				query
+			}
+		}).then(({ data }) => {
+			data = data.data.updateContainer
+			if (data.success === true) {
+				this.setState({
+					mode: "browse",
+					success: {
+						state: true,
+						message: "updated the container info"
+					}
+				})
+			} else {
+				console.log("the container could not be updated")
+			}
+		}).catch(err => console.log(err))
+	}
+
 	render() {
-		let data = this.props.location.state.data
+		if (this.state.back === true) {
+			return (<Redirect to={{
+				pathname: this.props.location.state.url
+			}} />)
+		}
+
+		let data = this.state.data
+		let nameField = (<div className="control">
+			<label className="label">Name</label>
+			<div className="field">
+				{data.name}
+			</div>
+		</div>), 
+		detailField = (<div className="control">
+			<label className="label">Details</label>
+			<div className="field">
+				{data.detail}
+			</div>
+		</div>),
+		blankContainer,
+		editButton = (
+			<button className="button" onClick={this.toggleMode}>
+				<i className="icon lnr lnr-pencil"></i>
+			</button>
+		)
+
+		if(this.state.mode === "edit") {
+			nameField = (
+				<div className="control">
+					<label className="label">Name</label>
+					<div className="field">
+						<input type="text" className="input" placeholder="Name of container" defaultValue={data.name} id="containerName" onChange={this.handleInputEvent} />
+					</div>
+				</div>
+			)
+
+			detailField = (
+				<div className="control">
+					<label className="label">Details</label>
+					<div className="field">
+						<textarea rows="5" className="textarea" defaultValue={data.detail} placeholder="describe the container" id="containerDetail" onChange={this.handleInputEvent} ></textarea>
+					</div>
+				</div>
+			)
+
+			blankContainer = (
+				<div className="control">
+					<button className="button is-info" onClick={this.handleUpdateEvent}>Update</button>
+					&nbsp;
+					<button className="button is-danger is-outlined" onClick={this.toggleMode}>Cancel</button>
+				</div>
+			)
+
+			if (this.state.updating === true) {
+				blankContainer = (
+					<div className="control">
+						<button className="button is-info is-loading">Update</button>
+					</div>
+				)
+			}
+			editButton = null
+		}
 
 		return (
 			<div className="container">
@@ -63,28 +268,33 @@ class browseContainerComponent extends Component {
 						</span>
 
 						<span className="level-right">
-							<button className="button">
-								<i className="icon lnr lnr-pencil"></i>
-							</button>
+							{editButton}
 							&nbsp;
-							<button className="button">
+							<button className="button" onClick={this.deleteContainer}>
 								<i className="icon lnr lnr-trash"></i>
 							</button>
 						</span>
 					</div>
 
 					<div className="container-body columns">
-						<div className="column is-two-thirds">
+						<div className="column is-one-half">
 							<p className="menu-label">Entities</p>
-							{data.entities.map(entity => <div><Entity key={entity.id} data={entity} /> <br/></div>)}
+							{data.entities.map(entity => <div><Entity data={entity} key={entity.id} /> <br/></div>)}
 							<div className="level">
 								<button className="button is-info is-outlined level-item">
 									<i className="icon lnr lnr-plus-circle"></i>&nbsp; Add Entity
 								</button>
 							</div>
 						</div>
-						<div className="column is-one-third">
+						<div className="column is-one-half">
 							<p className="menu-label">{data.category} details</p>
+							<div>
+								{nameField}
+								<br/>
+								{detailField}
+								<br/>
+								{blankContainer}
+							</div>
 						</div>
 					</div>
 				</div>

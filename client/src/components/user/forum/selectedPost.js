@@ -11,6 +11,14 @@ class SelectedPost extends Component {
 		}
 	}
 
+	componentWillReceiveProps (newProps) {
+		if (this.state.post !== newProps.post) {
+			this.setState({
+				post: newProps.post
+			})
+		}
+	}
+
 	render() {
 		let buttons
 		if(this.props.post.editable){
