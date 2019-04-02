@@ -4,6 +4,7 @@ import { Link, Redirect } from 'react-router-dom'
 import axios from 'axios'
 
 import Bar from '../user/bar'
+import AddEntityModal from './addEntity'
 
 function Entity(props) {
 	return (
@@ -34,23 +35,6 @@ function Entity(props) {
 	)
 }
 
-function DeleteContainerModal(props) {
-	return (
-		<div className="modal is-active">
-			<div className="modal-background"></div>
-			<div className="modal-content">
-				<p>Are you sure you want to delete this container?</p>
-				<div className="level">
-					<span className="level-right">
-						<button className="button is-danger">Delete</button>
-					</span>
-				</div>
-			</div>
-			<button class="modal-close is-large" aria-label="close"></button>
-		</div>
-	)
-}
-
 class browseContainerComponent extends Component {
 	constructor(props) {
 		super(props)
@@ -67,6 +51,10 @@ class browseContainerComponent extends Component {
 			success: {
 				state: false,
 				message: ""
+			},
+			modal: {
+				show: false,
+				component: null
 			}
 		}
 
@@ -74,6 +62,9 @@ class browseContainerComponent extends Component {
 		this.handleInputEvent = this.handleInputEvent.bind(this)
 		this.handleUpdateEvent = this.handleUpdateEvent.bind(this)
 		this.deleteContainer = this.deleteContainer.bind(this)
+		this.closeModal = this.closeModal.bind(this)
+		this.onAddEntity = this.onAddEntity.bind(this)
+		this.passEntity = this.passEntity.bind(this)
 	}
 
 	componentWillReceiveProps(newProps) {
@@ -119,6 +110,29 @@ class browseContainerComponent extends Component {
 		}
 	}
 
+	onAddEntity() {
+		let modal = Object.assign({}, this.state.modal)
+		modal.show = true
+		modal.component = <AddEntityModal 
+			closeModal={this.closeModal} 
+			category={this.state.data.category} 
+			containerId = {this.state.data.id}
+			passEntity = {this.passEntity}
+		/>
+		this.setState({
+			modal
+		})
+	}
+
+	closeModal() {
+		let modal = Object.assign({}, this.state.modal)
+		modal.show = false
+		modal.component = null
+		this.setState({
+			modal
+		})
+	}
+
 	handleInputEvent(e) {
 		let data = Object.assign({}, this.state.data)
 		switch (e.target.id) {
@@ -155,7 +169,7 @@ class browseContainerComponent extends Component {
 			return this.setState({
 				error: {
 					state: true,
-					message: "all fields are requied"
+					message: "all fields are requied",
 				}
 			})
 		}
@@ -189,11 +203,27 @@ class browseContainerComponent extends Component {
 		}).catch(err => console.log(err))
 	}
 
+	passEntity(entity) {
+		console.log("PASSING")
+		let data = this.state.data
+		data.entities.push(entity)
+		this.setState({
+			data
+		})
+		return
+	}
+
 	render() {
 		if (this.state.back === true) {
 			return (<Redirect to={{
 				pathname: this.props.location.state.url
 			}} />)
+		}
+
+		let modal
+
+		if (this.state.modal.show === true) {
+			modal = this.state.modal.component
 		}
 
 		let data = this.state.data
@@ -279,9 +309,9 @@ class browseContainerComponent extends Component {
 					<div className="container-body columns">
 						<div className="column is-one-half">
 							<p className="menu-label">Entities</p>
-							{data.entities.map(entity => <div><Entity data={entity} key={entity.id} /> <br/></div>)}
+							{data.entities.map(entity => { if(entity.id) { return (<div><Entity data={entity} key={entity.id} /> <br/></div>) } })}
 							<div className="level">
-								<button className="button is-info is-outlined level-item">
+								<button className="button is-info is-outlined level-item" onClick={this.onAddEntity}>
 									<i className="icon lnr lnr-plus-circle"></i>&nbsp; Add Entity
 								</button>
 							</div>
@@ -298,6 +328,7 @@ class browseContainerComponent extends Component {
 						</div>
 					</div>
 				</div>
+				{modal}
 			</div>
 		)
 	}

@@ -329,7 +329,7 @@ const Mutation = new GraphQLObjectType({
 
 				let commit = user.save()
 
-				await transporter.sendMail(mailOptions, (err, info) => {
+				await transporter.sendMail(mailOptions, (error, info) => {
 					if (error) {
 						console.log(error)
 					} else {
@@ -511,7 +511,7 @@ const Mutation = new GraphQLObjectType({
 				name: { type: new GraphQLNonNull(GraphQLString) },
 				containerId: { type: new GraphQLNonNull(GraphQLID) },
 				type: { type: new GraphQLNonNull(GraphQLString) },
-				detail: { type: GraphQLID },
+				detail: { type: GraphQLString },
 				start: { type: GraphQLString },
 				end: { type: GraphQLString }
 			},
@@ -525,7 +525,7 @@ const Mutation = new GraphQLObjectType({
 						name: args.name,
 						containerId: args.containerId,
 						type: args.type,
-						detail: args.detail,
+						detail: args.detail === "null" ? null : args.detail,
 						start: args.start ? args.start : null,
 						end: args.end ? args.end : null
 					})
@@ -590,7 +590,8 @@ const Mutation = new GraphQLObjectType({
 				dropPincode: { type: GraphQLInt },
 				dropLocation: { type: GraphQLString },
 				seat: { type: GraphQLString },
-				entity: { type: GraphQLID }
+				entity: { type: GraphQLID },
+				vehicleId: { type: GraphQLString }
 			},
 			resolve: async (parent, args) => {
 				let data = await verifyToken(args.token)
@@ -610,7 +611,8 @@ const Mutation = new GraphQLObjectType({
 						dropCountry: args.dropCountry,
 						dropPincode: args.dropPincode,
 						dropLocation: args.dropLocation,
-						seat: args.seat
+						seat: args.seat,
+						vehicleId: args.vehicleId
 					})
 
 					let store = await transport.save()
