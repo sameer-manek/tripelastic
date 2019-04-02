@@ -55,6 +55,9 @@ class AddEntityModal extends Component {
 		this.handleStartDateChange = this.handleStartDateChange.bind(this)
 		this.handleNameInput = this.handleNameInput.bind(this)
 		this.handleTypeChange = this.handleTypeChange.bind(this)
+		this.handleHotelInput = this.handleHotelInput.bind(this)
+		this.handleTransportInput = this.handleTransportInput.bind(this)
+		this.handleDestinationInput = this.handleDestinationInput.bind(this)
 		this.onSaveEvent = this.onSaveEvent.bind(this)
 	}
 
@@ -62,37 +65,37 @@ class AddEntityModal extends Component {
 		let hotel = this.state.hotel
 		switch(e.target.id) {
 			case "address":
-				hotel.address = e.target.id
+				hotel.address = e.target.value
 				this.setState({
 					hotel
 				})
 			break
 			case "city":
-				hotel.city = e.target.id
+				hotel.city = e.target.value
 				this.setState({
 					hotel
 				})
 			break
 			case "country":
-				hotel.country = e.target.id
+				hotel.country = e.target.value
 				this.setState({
 					hotel
 				})
 			break
 			case "pincode":
-				hotel.pincode = e.target.id
+				hotel.pincode = e.target.value
 				this.setState({
 					hotel
 				})
 			break
 			case "location":
-				hotel.location = e.target.id
+				hotel.location = e.target.value
 				this.setState({
 					hotel
 				})
 			break
 			case "room":
-				hotel.room = e.target.id
+				hotel.room = e.target.value
 				this.setState({
 					hotel
 				})
@@ -106,31 +109,31 @@ class AddEntityModal extends Component {
 		let destination = this.state.destination
 		switch(e.target.id) {
 			case "address":
-				destination.address = e.target.id
+				destination.address = e.target.value
 				this.setState({
 					destination
 				})
 			break
 			case "city":
-				destination.city = e.target.id
+				destination.city = e.target.value
 				this.setState({
 					destination
 				})
 			break
 			case "country":
-				destination.country = e.target.id
+				destination.country = e.target.value
 				this.setState({
 					destination
 				})
 			break
 			case "pincode":
-				destination.pincode = e.target.id
+				destination.pincode = e.target.value
 				this.setState({
 					destination
 				})
 			break
 			case "location":
-				destination.location = e.target.id
+				destination.location = e.target.value
 				this.setState({
 					destination
 				})
@@ -274,19 +277,19 @@ class AddEntityModal extends Component {
 
 		// queries
 		let hotelQuery = `mutation {
-		  createHotel(token: "`+ sessionStorage.token +`", address: "`+ state.hotel.address +`", city: "`+ state.hotel.city +`", country: "`+ state.hotel.country +`", pincode: `+ parseInt(state.hotel.pincode) +`, location: "`+ state.hotel.location +`", room:"`+ state.hotel.room +`") {
+		  createHotel(token: "`+ sessionStorage.token +`", address: "`+ state.hotel.address +`", city: "`+ state.hotel.city +`", country: "`+ state.hotel.country +`", pincode: "`+ state.hotel.pincode +`", location: "`+ state.hotel.location +`", room:"`+ state.hotel.room +`") {
 		    id
 		  }
 		}`
 
 		let destinationQuery = `mutation {
-		  createHotel(token: "`+ sessionStorage.token +`", address: "`+ state.destination.address +`", city: "`+ state.destination.city +`", country: "`+ state.destination.country +`", pincode: `+ parseInt(state.destination.pincode) +`, location: "`+ state.destination.location +`") {
+		  createDestination(token: "`+ sessionStorage.token +`", address: "`+ state.destination.address +`", city: "`+ state.destination.city +`", country: "`+ state.destination.country +`", pincode: "`+ state.destination.pincode +`", location: "`+ state.destination.location +`") {
 		    id
 		  }
 		}`
 
 		let transportQuery = `mutation {
-		  createHotel(token: "`+ sessionStorage.token +`", type: "`+ state.transport.type +`", pickupAddress: "`+ state.transport.pickupAddress +`", pickupCity: "`+ state.transport.pickupCity +`", pickupCountry: "`+ state.transport.pickupCountry +`", pickupPincode: `+ parseInt(state.transport.pickupPincode) +`, pickupLocation: "`+ state.transport.pickupLocation +`", dropAddress: "`+ state.transport.dropAddress +`", dropCity: "`+ state.transport.dropCity +`", dropCountry: "`+ state.transport.dropCountry +`", dropPincode: `+ parseInt(state.transport.dropPincode) +`, dropLocation: "`+ state.transport.dropLocation +`", seat: "`+ state.transport.seat +`", bookingId: "`+ state.transport.bookingId +`", vehicleId: "`+ state.transport.vehicleId +`") {
+		  createTransport(token: "`+ sessionStorage.token +`", type: "`+ state.transport.type +`", pickupAddress: "`+ state.transport.pickupAddress +`", pickupCity: "`+ state.transport.pickupCity +`", pickupCountry: "`+ state.transport.pickupCountry +`", pickupPincode: "`+ state.transport.pickupPincode +`", pickupLocation: "`+ state.transport.pickupLocation +`", dropAddress: "`+ state.transport.dropAddress +`", dropCity: "`+ state.transport.dropCity +`", dropCountry: "`+ state.transport.dropCountry +`", dropPincode: "`+ state.transport.dropPincode +`", dropLocation: "`+ state.transport.dropLocation +`", seat: "`+ state.transport.seat +`", bookingId: "`+ state.transport.bookingId +`", vehicleId: "`+ state.transport.vehicleId +`") {
 		    id
 		  }
 		}`
@@ -309,7 +312,7 @@ class AddEntityModal extends Component {
 				url: "http://localhost:4000/api",
 				method: "post",
 				data: {
-					hotelQuery
+					query: hotelQuery
 				}
 			}).then(({ data }) => {
 				console.log("TYPE", data)
@@ -330,7 +333,7 @@ class AddEntityModal extends Component {
 				url: "http://localhost:4000/api",
 				method: "post",
 				data: {
-					destinationQuery
+					query: destinationQuery
 				}
 			}).then(({ data }) => {
 				console.log("TYPE", data)
@@ -351,7 +354,7 @@ class AddEntityModal extends Component {
 				url: "http://localhost:4000/api",
 				method: "post",
 				data: {
-					transportQuery
+					query: transportQuery
 				}
 			}).then(({ data }) => {
 				console.log("TYPE", data)
@@ -411,7 +414,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">Type</label>
 							<div className="field">
-								<select id="type" className="input select">
+								<select id="type" className="input select" onChange={this.handleTransportInput}>
 									<option value="plane">Air Plane</option>
 									<option value="train">Train (IRCTC)</option>
 									<option value="bus">Bus</option>
@@ -425,7 +428,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">*pickup address</label>
 							<div className="field">
-								<input type="text" className="input" id="pickupAddress"/>
+								<input type="text" className="input" id="pickupAddress" onChange={this.handleTransportInput}/>
 							</div>
 						</div>
 						<br/>
@@ -433,7 +436,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">*pickup city</label>
 							<div className="field">
-								<input type="text" className="input" id="pickupCity" />
+								<input type="text" className="input" id="pickupCity" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
@@ -441,7 +444,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">*pickup country</label>
 							<div className="field">
-								<input type="text" className="input" id="pickupCountry" />
+								<input type="text" className="input" id="pickupCountry" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
@@ -449,7 +452,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">pickup pincode</label>
 							<div className="field">
-								<input type="text" className="input" id="pickupPincode" />
+								<input type="text" className="input" id="pickupPincode" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
@@ -457,7 +460,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">pickup location (google maps link)</label>
 							<div className="field">
-								<input type="text" className="input" id="pickupLocation" />
+								<input type="text" className="input" id="pickupLocation" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
@@ -465,7 +468,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">*drop address</label>
 							<div className="field">
-								<input type="text" className="input" id="dropAddress"/>
+								<input type="text" className="input" id="dropAddress" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
@@ -473,7 +476,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">*drop city</label>
 							<div className="field">
-								<input type="text" className="input" id="dropCity" />
+								<input type="text" className="input" id="dropCity" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
@@ -481,7 +484,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">*drop country</label>
 							<div className="field">
-								<input type="text" className="input" id="dropCountry" />
+								<input type="text" className="input" id="dropCountry" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
@@ -489,7 +492,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">drop pincode</label>
 							<div className="field">
-								<input type="text" className="input" id="dropPincode" />
+								<input type="text" className="input" id="dropPincode" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
@@ -497,7 +500,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">drop location (google maps link)</label>
 							<div className="field">
-								<input type="text" className="input" id="dropLocation" />
+								<input type="text" className="input" id="dropLocation" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
@@ -505,21 +508,21 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">booking id</label>
 							<div className="field">
-								<input type="text" className="input" id="bookingId" />
+								<input type="text" className="input" id="bookingId" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
 						<div className="control">
 							<label className="label">seat</label>
 							<div className="field">
-								<input type="text" className="input" id="seat" />
+								<input type="text" className="input" id="seat" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
 						<div className="control">
 							<label className="label">Vehicle Identification (train number or bus number)</label>
 							<div className="field">
-								<input type="text" className="input" id="vehicleId" />
+								<input type="text" className="input" id="vehicleId" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
@@ -535,21 +538,21 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">Address</label>
 							<div className="field">
-								<input type="text" className="input" id="address" />
+								<input type="text" className="input" id="address" onChange={this.handleHotelInput} />
 							</div>
 						</div>
 						<br/>
 						<div className="control">
 							<label className="label">city</label>
 							<div className="field">
-								<input type="text" className="input" id="city" />
+								<input type="text" className="input" id="city" onChange={this.handleHotelInput} />
 							</div>
 						</div>
 						<br/>
 						<div className="control">
 							<label className="label">country</label>
 							<div className="field">
-								<input type="text" className="input" id="country" />
+								<input type="text" className="input" id="country" onChange={this.handleHotelInput} />
 							</div>
 						</div>
 						<br/>
@@ -557,7 +560,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">pincode</label>
 							<div className="field">
-								<input type="text" className="input" id="pincode" />
+								<input type="text" className="input" id="pincode" onChange={this.handleHotelInput} />
 							</div>
 						</div>
 						<br/>
@@ -565,7 +568,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">location</label>
 							<div className="field">
-								<input type="text" className="input" id="location" />
+								<input type="text" className="input" id="location" onChange={this.handleHotelInput} />
 							</div>
 						</div>
 						<br/>
@@ -573,7 +576,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">room number</label>
 							<div className="field">
-								<input type="text" className="input" id="room" />
+								<input type="text" className="input" id="room" onChange={this.handleHotelInput} />
 							</div>
 						</div>
 						<br/>
@@ -589,21 +592,21 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">Address</label>
 							<div className="field">
-								<input type="text" className="input" id="address" />
+								<input type="text" className="input" id="address" onChange={this.handleDestinationInput} />
 							</div>
 						</div>
 						<br/>
 						<div className="control">
 							<label className="label">city</label>
 							<div className="field">
-								<input type="text" className="input" id="city" />
+								<input type="text" className="input" id="city" onChange={this.handleDestinationInput} />
 							</div>
 						</div>
 						<br/>
 						<div className="control">
 							<label className="label">country</label>
 							<div className="field">
-								<input type="text" className="input" id="country" />
+								<input type="text" className="input" id="country" onChange={this.handleDestinationInput} />
 							</div>
 						</div>
 						<br/>
@@ -611,7 +614,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">pincode</label>
 							<div className="field">
-								<input type="text" className="input" id="pincode" />
+								<input type="text" className="input" id="pincode" onChange={this.handleDestinationInput} />
 							</div>
 						</div>
 						<br/>
@@ -619,7 +622,7 @@ class AddEntityModal extends Component {
 						<div className="control">
 							<label className="label">location</label>
 							<div className="field">
-								<input type="text" className="input" id="location" />
+								<input type="text" className="input" id="location" onChange={this.handleDestinationInput} />
 							</div>
 						</div>
 						<br/>
@@ -694,8 +697,8 @@ class AddEntityModal extends Component {
 						</form>
 					</section>
 					<footer className="modal-card-foot">
-						<button className="button is-info is-outlined" onClick={this.onSaveEvent}>Submit</button>
-						<button className="button is-danger is-outlined" onClick={this.props.closeModal}>Cancel</button>
+						<button type="button" className="button is-info is-outlined" onClick={this.onSaveEvent}>Submit</button>
+						<button type="button" className="button is-danger is-outlined" onClick={this.props.closeModal}>Cancel</button>
 					</footer>
 				</div>
 			</div>

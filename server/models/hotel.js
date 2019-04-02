@@ -8,7 +8,7 @@ const hotelSchema = Schema({
 	userId: { type: String, required: true },
 	city: { type: String, required: true },
 	country: { type: String, required: true },
-	pincode: { type: Number, required: false },
+	pincode: { type: String, required: false },
 	location: { type: String, required: false },
 	room: { type: String, required: false }
 })

@@ -543,32 +543,25 @@ const Mutation = new GraphQLObjectType({
 				address: { type: new GraphQLNonNull(GraphQLString) },
 				city: { type: new GraphQLNonNull(GraphQLString) },
 				country: { type: new GraphQLNonNull(GraphQLString) },
-				pincode: { type: GraphQLInt },
+				pincode: { type: GraphQLString },
 				location: { type: GraphQLString },
 				room: { type: GraphQLString },
-				entity: { type: GraphQLID }
 			},
 			resolve: async (parent, args) => {
 				let data = await verifyToken(args.token)
-				let entity = await Entity.findById(args.entity)
-				if (data && entity) {
+				if (data ) {
 					// register the hotel and put that into the entity
 					let hotel = new Hotel({
 						userId: data.id,
 						address: args.address,
 						city: args.city,
 						country: args.country,
-						pincode: args.pincode,
+						pincode: args.pincode === "null" ? null : args.pincode,
 						location: args.location,
 						room: args.room
 					})
 
-					let store = await hotel.save()
-
-					entity.detail = store.id
-					await entity.save()
-
-					return store
+					return hotel.save()
 				}
 				return new Error("could not authenticate the user")
 			}
@@ -582,21 +575,19 @@ const Mutation = new GraphQLObjectType({
 				pickupAddress: { type: new GraphQLNonNull(GraphQLString) },
 				pickupCity: { type: new GraphQLNonNull(GraphQLString) },
 				pickupCountry: { type: new GraphQLNonNull(GraphQLString) },
-				pickupPincode: { type: GraphQLInt },
+				pickupPincode: { type: GraphQLString },
 				pickupLocation: { type: GraphQLString },
 				dropAddress: { type: new GraphQLNonNull(GraphQLString) },
 				dropCity: { type: new GraphQLNonNull(GraphQLString) },
 				dropCountry: { type: new GraphQLNonNull(GraphQLString) },
-				dropPincode: { type: GraphQLInt },
+				dropPincode: { type: GraphQLString },
 				dropLocation: { type: GraphQLString },
 				seat: { type: GraphQLString },
-				entity: { type: GraphQLID },
 				vehicleId: { type: GraphQLString }
 			},
 			resolve: async (parent, args) => {
 				let data = await verifyToken(args.token)
-				let entity = await Entity.findById(args.entity)
-				if (data && entity) {
+				if (data) {
 					// register the Transport and put that into the entity
 					let transport = new Transport({
 						type: args.type,
@@ -604,23 +595,18 @@ const Mutation = new GraphQLObjectType({
 						pickupAddress: args.pickupAddress,
 						pickupCity: args.pickupCity,
 						pickupCountry: args.pickupCountry,
-						pickupPincode: args.pickupPincode,
+						pickupPincode: args.pickupPincode === "null" ? null : args.pickupPincode,
 						pickupLocation: args.pickupLocation,
 						dropAddress: args.dropAddress,
 						dropCity: args.dropCity,
 						dropCountry: args.dropCountry,
-						dropPincode: args.dropPincode,
+						dropPincode: args.dropPincode === "null" ? null : args.dropPincode,
 						dropLocation: args.dropLocation,
 						seat: args.seat,
 						vehicleId: args.vehicleId
 					})
 
-					let store = await transport.save()
-
-					entity.detail = store.id
-					await entity.save()
-
-					return store
+					return await transport.save()
 				}
 				return new Error("could not authenticate the user")
 			}
@@ -633,31 +619,24 @@ const Mutation = new GraphQLObjectType({
 				address: { type: new GraphQLNonNull(GraphQLString) },
 				city: { type: new GraphQLNonNull(GraphQLString) },
 				country: { type: new GraphQLNonNull(GraphQLString) },
-				pincode: { type: GraphQLInt },
+				pincode: { type: GraphQLString },
 				location: { type: GraphQLString },
-				entity: { type: GraphQLID }
 			},
 			resolve: async (parent, args) => {
 				let data = await verifyToken(args.token)
-				let entity = await Entity.findById(args.entity)
-				if (data && entity) {
+				if (data) {
 					// register the destination and put that into the entity
 					let destination = new Destination({
 						address: args.address,
 						userId: data.id,
 						city: args.city,
 						country: args.country,
-						pincode: args.pincode,
+						pincode: args.pincode === "null" ? null : args.pincode,
 						location: args.location,
 						room: args.room
-					})
+					}) 
 
-					let store = await destination.save()
-
-					entity.detail = store.id
-					await entity.save()
-
-					return store
+					return await destination.save()
 				}
 				return new Error("could not authenticate the user")
 			}
@@ -714,7 +693,7 @@ const Mutation = new GraphQLObjectType({
 				address: { type: GraphQLString },
 				city: { type: GraphQLString },
 				country: { type: GraphQLString },
-				pincode: { type: GraphQLInt },
+				pincode: { type: GraphQLString },
 				location: { type: GraphQLString },
 				room: { type: GraphQLString }
 			},
@@ -762,12 +741,12 @@ const Mutation = new GraphQLObjectType({
 				pickupAddress: { type: GraphQLString },
 				pickupCity: { type: GraphQLString },
 				pickupCountry: { type: GraphQLString },
-				pickupPincode: { type: GraphQLInt },
+				pickupPincode: { type: GraphQLString },
 				pickupLocation: { type: GraphQLString },
 				dropAddress: { type: GraphQLString },
 				dropCity: { type: GraphQLString },
 				dropCountry: { type: GraphQLString },
-				dropPincode: { type: GraphQLInt },
+				dropPincode: { type: GraphQLString },
 				dropLocation: { type: GraphQLString },
 				seat: { type: GraphQLString },
 			},
@@ -820,7 +799,7 @@ const Mutation = new GraphQLObjectType({
 				address: { type: new GraphQLNonNull(GraphQLString) },
 				city: { type: new GraphQLNonNull(GraphQLString) },
 				country: { type: new GraphQLNonNull(GraphQLString) },
-				pincode: { type: GraphQLInt },
+				pincode: { type: GraphQLString },
 				location: { type: GraphQLString }
 			},
 			resolve: async function(parent, args) {

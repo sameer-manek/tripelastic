@@ -17,7 +17,7 @@ const DestinationType = new GraphQLObjectType({
 		address: { type: new GraphQLNonNull(GraphQLString) },
 		city: { type: new GraphQLNonNull(GraphQLString) },
 		country: { type: new GraphQLNonNull(GraphQLString) },
-		pincode: { type: GraphQLInt },
+		pincode: { type: GraphQLString },
 		location: { type: GraphQLString },
 	})
 })

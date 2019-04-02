@@ -8,7 +8,7 @@ const destinationSchema = Schema({
 	userId: { type: String, required: true },
 	city: { type: String, required: true },
 	country: { type: String, required: false },
-	pincode: { type: Number, required: true },
+	pincode: { type: String, required: true },
 	location: { type: String },
 })
 
