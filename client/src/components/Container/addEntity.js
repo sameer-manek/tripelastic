@@ -298,6 +298,7 @@ class AddEntityModal extends Component {
 			this.setState({
 				error: "Please fill up all the fields"
 			})
+			return false
 		}
 		let detail = null
 		if(state.category === "trip" && state.type === "hotel"){
@@ -307,6 +308,7 @@ class AddEntityModal extends Component {
 				this.setState({
 					error: "Please fill up all the fields"
 				})
+				return false
 			}
 			await axios({
 				url: "http://localhost:4000/api",
@@ -328,6 +330,7 @@ class AddEntityModal extends Component {
 				this.setState({
 					error: "Please fill up all the fields"
 				})
+				return false
 			}
 			await axios({
 				url: "http://localhost:4000/api",
@@ -349,6 +352,7 @@ class AddEntityModal extends Component {
 				this.setState({
 					error: "Please fill up all the fields"
 				})
+				return false
 			}
 			await axios({
 				url: "http://localhost:4000/api",
