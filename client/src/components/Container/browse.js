@@ -29,7 +29,7 @@ function Entity(props) {
 		  <footer className="card-footer">
 		  <a href="#" className="card-footer-item">Info</a>
 		    <a href="#" className="card-footer-item">Edit</a>
-		    <a href="#" className="card-footer-item">Delete</a>
+		    <span className="card-footer-item" style={{ cursor: "pointer", color: "red" }} onClick={() => props.deleteEntity(props.data.id)}>Delete</span>
 		  </footer>
 		</div>
 	)
@@ -65,10 +65,46 @@ class browseContainerComponent extends Component {
 		this.closeModal = this.closeModal.bind(this)
 		this.onAddEntity = this.onAddEntity.bind(this)
 		this.passEntity = this.passEntity.bind(this)
+		this.deleteEntity = this.deleteEntity.bind(this)
 	}
 
 	componentWillReceiveProps(newProps) {
 		this.setState(newProps.location.state)
+	}
+
+	async deleteEntity(eid) {
+		let query = `mutation {
+			deleteEntity(token: "`+ sessionStorage.token +`", id: "`+ eid +`") {
+				success
+				message
+			}
+		}`
+
+		await axios({
+			url: "http://localhost:4000/api",
+			method: "post",
+			data: {
+				query
+			}
+		}).then(({data}) => {
+			console.log("DATA", data)
+			console.log("QUERY", query)
+			data = data.data.deleteEntity
+
+			if(data.success === true) {
+				// remove entity from the container UI
+
+
+				let stateData = this.state.data
+				stateData.entities = stateData.entities.filter(({ id }) => {
+					return id !== eid
+				})
+
+				this.setState({
+					data: stateData
+				})
+			}
+		})
 	}
 
 	async deleteContainer() {
@@ -85,13 +121,14 @@ class browseContainerComponent extends Component {
 				query
 			}
 		}).then (({data}) => {
+			
 			data = data.data.deleteContainer
 			if(data.success === true) {
 				this.setState({
 					back: true
 				})
 			}
-		})
+		}).catch(err => console.log(err))
 	}
 
 	toggleMode() {
@@ -309,7 +346,7 @@ class browseContainerComponent extends Component {
 					<div className="container-body columns">
 						<div className="column is-one-half">
 							<p className="menu-label">Entities</p>
-							{data.entities.map(entity => { if(entity.id) { return (<div><Entity data={entity} key={entity.id} /> <br/></div>) } })}
+							{data.entities.map(entity => { if(entity.id) { return (<div><Entity data={entity} key={entity.id} deleteEntity={this.deleteEntity} /> <br/></div>) } })}
 							<div className="level">
 								<button className="button is-info is-outlined level-item" onClick={this.onAddEntity}>
 									<i className="icon lnr lnr-plus-circle"></i>&nbsp; Add Entity

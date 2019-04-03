@@ -162,12 +162,10 @@ const RootQuery = new GraphQLObjectType({
 							from: "tripelastic@gmail.com",
 							to: email,
 							subject: "[DO NOT REPLY] verify your Email",
-							html: `<h1>Hey,</h1>
-									<p>Thanks being a part of tripelastic community. Inorder to use our services, we require you to click on the link below and verify this email.</p>
-									<br />
-									<a href="http://localhost:4000/verification?type=email&token=`+ token +`>click here</a>
-									<br />
-									<p>Note that you must do this in next 48 hours, else you will have to generate new link. which can be easily done from contact section of your profile.</p>`
+							html: "<link rel=\"stylesheet\" href=\"https://cdn.linearicons.com/free/1.0.0/icon-font.min.css\">\
+							<h1 class=\"title\">Hey,</h1>\
+							<p>Thanks being a part of tripelastic community. Inorder to use our services, we require you to <a class=\"button is-link\" href=\"http://localhost:4000/verification?type=email&token="+ token +">click here</a> and verify this email.</p>\
+							<p>Note that you must do this in next 48 hours, else you will have to generate new link. which can be easily done from contact section of your profile.</p>"
 						}
 
 						await transporter.sendMail(mailOptions, (err, info) => {
@@ -322,8 +320,9 @@ const Mutation = new GraphQLObjectType({
 					from: "tripelastic@gmail.com",
 					to: args.email,
 					subject: "[DO NOT REPLY] verify your Email",
-					html: `<h1>Hey,</h1>
-							<p>Thanks being a part of tripelastic community. Inorder to use our services, we require you to <a href="http://localhost:4000/verification?type=email&token=`+ token +`>click here</a> and verify this email.</p>
+					html: `<link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css">
+							<h1 class="title">Hey,</h1>
+							<p>Thanks being a part of tripelastic community. Inorder to use our services, we require you to <a class="button is-link" href="http://localhost:4000/verification?type=email&token=`+ token +`>click here</a> and verify this email.</p>
 							<p>Note that you must do this in next 48 hours, else you will have to generate new link. which can be easily done from contact section of your profile.</p>`
 				}
 
