@@ -2,6 +2,8 @@ const graphql = require('graphql')
 const _ = require('lodash')
 const mailer = require('nodemailer')
 
+const mongoose = require('mongoose')
+
 // mailer configuration
 
 const transporter = mailer.createTransport({
@@ -483,23 +485,74 @@ const Mutation = new GraphQLObjectType({
 						message: "could not authenticate user"
 					}
 				}
-				let container = await Container.findById(args.containerId).catch(err => {
+				let container = await Container.findById(args.containerId)
+				if (!container) {
 					return {
 						success: false,
-						message: "container not found"
+						message: "cannot find the container"
 					}
-				})
-				if(container && container.userId.toString() === data.id) {
-					container.remove()
+				} else {
+					let entities = await Entity.find({ containerId: container.id })
+					entities.map(entity => entity.remove())
+
+					await container.remove()
+
 					return {
 						success: true,
 						message: "container has been deleted"
 					}
 				}
-				return {
-					success: false,
-					message: "container could not be deleted"
+			}
+		},
+
+		duplicateContainer: {
+			type: ActionType,
+			args: {
+				token: { type: new GraphQLNonNull(GraphQLString) },
+				containerId: { type: new GraphQLNonNull(GraphQLString) },
+				name: { type: new GraphQLNonNull(GraphQLString) },
+				detail: { type: GraphQLString },
+			},
+			resolve: async function(parent, args) {
+				let data = verifyToken(args.token)
+
+				if(!data) {
+					return new Error("cannot authenticate user")
 				}
+
+				await Container.findById(args.containerId).exec(
+					async function (err, doc) {
+						doc._id = mongoose.Types.ObjectId()
+						doc.name = args.name
+						doc.detail = args.detail
+						doc.isNew = true,
+						await doc.save()
+					}
+				)
+
+				await Entity.find({ containerId: args.containerId }).exec(
+					async function (err, doc) {
+						doc._id = mongoose.Types.ObjectId()
+						doc.isNew = true,
+						await doc.save()
+					}
+				)
+
+				return {
+					success: true,
+					message: "done"
+				}
+
+				// entities.map(entity => {
+				// 	entity.exec(
+				// 		function (err, doc) {
+				// 			doc._id = mongoose.types.ObjectId()
+				// 			doc.isNew = true
+				// 			doc.containerId = newContainer.id
+				// 			doc.save()
+				// 		}
+				// 	)
+				// })
 			}
 		},
 
@@ -582,7 +635,8 @@ const Mutation = new GraphQLObjectType({
 				dropPincode: { type: GraphQLString },
 				dropLocation: { type: GraphQLString },
 				seat: { type: GraphQLString },
-				vehicleId: { type: GraphQLString }
+				vehicleId: { type: GraphQLString },
+				bookingId: { type: GraphQLString }
 			},
 			resolve: async (parent, args) => {
 				let data = await verifyToken(args.token)
@@ -602,7 +656,8 @@ const Mutation = new GraphQLObjectType({
 						dropPincode: args.dropPincode === "null" ? null : args.dropPincode,
 						dropLocation: args.dropLocation,
 						seat: args.seat,
-						vehicleId: args.vehicleId
+						vehicleId: args.vehicleId,
+						bookingId: args.bookingId
 					})
 
 					return await transport.save()

@@ -16,7 +16,7 @@ class AddEntityModal extends Component {
 			start: new Date(),
 			end: new Date(),
 			transport: {
-				type: "",
+				type: "plane",
 				pickupAddress: "",
 				pickupCity: "",
 				pickupCountry: "",
@@ -145,7 +145,7 @@ class AddEntityModal extends Component {
 
 	handleTransportInput(e) {
 		let transport = this.state.transport
-		switch(e.traget.id) {
+		switch(e.target.id) {
 			case "type":
 				transport.type = e.target.value
 				this.setState({
@@ -346,7 +346,7 @@ class AddEntityModal extends Component {
 		}
 
 		if(state.category === "trip" && state.type === "transport"){
-			console.log("TRANS")
+			console.log("TRANS", transportQuery)
 			let transport = state.transport
 			if(transport.pickupAddress === "" || transport.pickupCity === "" || transport.pickupCountry === "" || transport.dropAddress === "" || transport.dropCity === "" || transport.dropCountry === "") {
 				this.setState({
