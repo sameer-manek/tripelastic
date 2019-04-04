@@ -521,20 +521,23 @@ const Mutation = new GraphQLObjectType({
 				}
 
 				await Container.findById(args.containerId).exec(
-					async function (err, doc) {
+					function (err, doc) {
 						doc._id = mongoose.Types.ObjectId()
 						doc.name = args.name
 						doc.detail = args.detail
 						doc.isNew = true,
-						await doc.save()
-					}
-				)
-
-				await Entity.find({ containerId: args.containerId }).exec(
-					async function (err, doc) {
-						doc._id = mongoose.Types.ObjectId()
-						doc.isNew = true,
-						await doc.save()
+						doc.save().then(async data => {
+							await Entity.find({ containerId: args.containerId }).exec(
+								async function (err, docs) {
+									docs.map(doc => {
+										doc._id = mongoose.Types.ObjectId()
+										doc.containerId = data._id
+										doc.isNew = true,
+										doc.save()
+									})
+								}
+							)
+						})
 					}
 				)
 
@@ -542,17 +545,6 @@ const Mutation = new GraphQLObjectType({
 					success: true,
 					message: "done"
 				}
-
-				// entities.map(entity => {
-				// 	entity.exec(
-				// 		function (err, doc) {
-				// 			doc._id = mongoose.types.ObjectId()
-				// 			doc.isNew = true
-				// 			doc.containerId = newContainer.id
-				// 			doc.save()
-				// 		}
-				// 	)
-				// })
 			}
 		},
 

@@ -7,11 +7,21 @@ class Containers extends Component{
 		super(props)
 
 		this.state = {
-			containers: [],
-			category: "all",
-			search: "",
+			containers: this.props.containers,
+			category: this.props.category,
+			search: this.props.searchQuery,
 			loading: false,
 		}
+
+		this.filterContainers = this.filterContainers.bind(this)
+		this.removeContainer = this.removeContainer.bind(this)
+	}
+
+	removeContainer(cid) {
+		console.log(cid)
+		this.setState({
+			containers: this.state.containers.filter(({id}) => {return id !== cid})
+		})
 	}
 
 	filterContainers(array, prop, value) {
@@ -27,12 +37,16 @@ class Containers extends Component{
 		return result
 	}
 
-	componentWillReceiveProps (newProps) {
+	componentDidMount() {
+		this.setState(prevState => {
+			containers: this.filterContainers(prevState.containers, "category", prevState.category)
+		})
+	}
+
+	componentWillReceiveProps(newProps) {
 		this.setState({
-			containers: this.filterContainers(newProps.containers, "category", newProps.category),
 			category: newProps.category,
-			search: newProps.searchQuery,
-			loading: false
+			containers: newProps.containers
 		})
 	}
 
@@ -47,11 +61,12 @@ class Containers extends Component{
 			<hr/>
 				<h1 className="subtitle">{this.state.category}</h1>
 
-				{this.state.containers.map(container => {
+				{this.filterContainers(this.state.containers, "category", this.state.category).map(container => {
 					return (<Container
 						key={container.id}
 						data={container}
 						deleteContainer={this.props.deleteContainer}
+						removeContainer={this.removeContainer}
 					/>)
 				})}
 			</div>
