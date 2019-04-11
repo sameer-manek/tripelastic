@@ -44,52 +44,13 @@ class Comm extends Component {
 
 		this.toggleSelected = this.toggleSelected.bind(this)
 		this.selectPost = this.selectPost.bind(this)
+		this.createComment = this.createComment.bind(this)
 	}
 
 	selectPost (post) {
 		//the state is updated in infinity loop. diagnose if t
 		this.setState({
 			selectedPost: post
-		})
-	}
-
-	async createPost(e) {
-		e.preventDefault()
-		let query = `
-			mutation {
-				createPost(token: "`+ sessionStorage.token +`", title: "`+ this.state.title +`", content: "`+ this.state.content +`") {
-					id,
-					title,
-					content,
-					editable,
-					comments{
-						comments{
-							id
-							user{
-								username
-							}
-							content
-						}
-					}
-					votes
-				}
-			}
-		`
-		await axios({
-			url: "http://localhost:4000/api",
-			method: "post",
-			data: {
-				query
-			}
-		}).then(({data}) => {
-			data = data.data.createPost
-
-			// update stack
-			let posts = this.state.posts
-			posts.push(data)
-			this.setState({
-				posts
-			})
 		})
 	}
 
@@ -117,6 +78,57 @@ class Comm extends Component {
 		})
 	}
 
+	async postComment(data) {
+		/*
+			data: {
+				content, postId, parent: null 
+			}
+		*/
+
+		let query = `mutation{
+		  createComment(token: "`+ sessionStorage.token +`", postId: "`+ data.postId +`", content: "`+ data.content +`", parentId: null) {
+		    id,
+		    content,
+		    user{
+		      username
+		    },
+		    editable
+		  }
+		}`
+
+		console.log(query)
+
+		axios({
+			url: "http://localhost:400/api",
+			method: "post",
+			data: {
+				query
+			}
+		}).then(({data}) => {
+			data = data.data.createComment
+
+			if(!data) {
+				console.log("error, comment was not posted", query, data)
+				alert("check console for errors")
+			} 
+
+			// render the new comment
+
+			else{
+				let posts = this.state.posts
+				let post = posts.filter((post) => {
+					if(post.id === data.postId){
+						post.comments.push(data)
+					}
+				})
+
+				this.setState({
+					posts
+				})
+			}
+		})
+	}
+
 	componentDidMount() {
 		let query = `query{
 		  allPosts(token: "`+ sessionStorage.token +`") {
@@ -137,22 +149,6 @@ class Comm extends Component {
 		        username
 		      }
 		      content
-		      children {
-		      	id
-		      	user {
-		      		username
-		      	}
-		      	content
-		      	children {
-					id
-					user {
-						username
-					}
-					content
-					editable
-		      	}
-		      	editable
-		      }
 		      editable
 		    }
 		    votes
@@ -185,7 +181,7 @@ class Comm extends Component {
 	render() {
 		let selectedPost
 		if (this.state.selectedPost !== null) {
-			selectedPost = <SelectedPost post={this.state.selectedPost} />
+			selectedPost = <SelectedPost post={this.state.selectedPost} createComment={this.createComment} />
 		}
 		
 		return (

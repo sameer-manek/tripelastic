@@ -2,20 +2,48 @@ import React, { Component } from 'react'
 
 import Comment from './Comment'
 
+class CommentFormComponent extends Component {
+
+	constructor(props) {
+		super(props) 
+
+		this.state = {
+			content: "",
+		}
+
+		this.changeContentEvent = this.changeContentEvent.bind(this)
+	}
+
+	changeContentEvent(e) {
+		this.setState({
+			content: e.target.value
+		})
+	}
+
+	render() {
+		return(
+			<div className="card" style={{ margin: "10px 0 0 20px", padding: "10px" }}>
+				<div className="control">
+					<div className="field">
+						<textarea rows="2" className="input textarea" placeholder="post your comment here" onChange={this.changeContentEvent}></textarea>
+					</div>
+				</div>
+				<div className="control" style={{ marginTop: "10px" }}>
+					<div className="field">
+						<button className="button is-info" onClick={() => this.props.postComment({ content: this.state.content, postId: this.props.postId })}>Post</button>
+					</div>
+				</div>
+			</div>
+		)
+	}
+}
+
 class SelectedPost extends Component {
 	constructor (props) {
 		super(props)
 
 		this.state = {
-			post: null
-		}
-	}
-
-	componentWillReceiveProps (newProps) {
-		if (this.state.post !== newProps.post) {
-			this.setState({
-				post: newProps.post
-			})
+			post: this.props.post
 		}
 	}
 
@@ -50,13 +78,11 @@ class SelectedPost extends Component {
 								&nbsp;
 								<i className="icon lnr lnr-thumbs-down" style={{ fontSize: "16px", cursor: "pointer", color: "orange" }}></i>
 							</span>
-							<button className="button has-icon level-right">
-								<i className="icon lnr lnr-mic"></i> &nbsp; Comment
-							</button>
 						</span>
 						<hr/>
 						<p className="menu-label">Comments</p>
 						{this.props.post.comments.map(comment => <Comment key={comment.id} data={comment} />)}
+						<CommentFormComponent postComment={this.props.createComment} postId={this.state.post.id} />
 					</div>
 				</div>
 			</div>

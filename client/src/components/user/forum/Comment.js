@@ -6,9 +6,10 @@ function Comment(props) {
 		children = props.data.children.map(child => <Comment key={child.id} data={child} />)
 	}
 	return (
-		<article className="message is-dark" style={{ marginLeft: "20px", borderLeft: "1px solid black" }}>
-			<div className="message-header">{props.data.user.username}</div>
-			<div className="message-body">{props.data.content}</div>
+		<article className="card is-dark" style={{ marginLeft: "20px", padding: "10px", borderLeft: "1px solid black" }}>
+			<b>{props.data.user.username}</b>
+			<br/>
+			<div className="card-body">{props.data.content}</div>
 			{children}
 		</article>
 	)
