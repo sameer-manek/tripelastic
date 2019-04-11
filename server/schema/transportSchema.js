@@ -25,6 +25,8 @@ const TransportType = new GraphQLObjectType({
 		dropCountry: { type: new GraphQLNonNull(GraphQLString) },
 		dropPincode: { type: GraphQLString },
 		dropLocation: { type: GraphQLString },
+		vehicleId: { type: GraphQLString },
+		bookingId: { type: GraphQLString },
 		seat: { type: GraphQLString },
 	})
 })

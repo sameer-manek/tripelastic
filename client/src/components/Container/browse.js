@@ -5,73 +5,39 @@ import axios from 'axios'
 
 import Bar from '../user/bar'
 import AddEntityModal from './addEntity'
-import EntityInfo from './entityInfo'
 
-class Entity extends Component {
-	constructor(props) {
-		super(props)
+function Entity (props) {
 
-		this.state = {
-			modal: {
-				show: true,
-				component: <EntityInfo closeModal={this.closeModal} data={this.props.data} />
-			}
-		}
+	return (
+		<div className="card">
+		  <header className="card-header">
+		    <p className="card-header-title">
+		      {props.data.type}
+		    </p>
+		    <a href="#" className="card-header-icon" aria-label="more options">
+		      <span className="icon">
+		        <i className="fas fa-angle-down" aria-hidden="true"></i>
+		      </span>
+		    </a>
+		  </header>
+		  <div className="card-content">
+		    <div className="content">
+		      <p>{props.data.name}</p>
+		      <br />
+		      <time dateTime="2016-1-1">11:09 PM - 1 Jan 2016</time>
+		    </div>
+		  </div>
+		  <footer className="card-footer">
+		  	<Link to={{
+		  		pathname: "/entity",
+		  		data: props.data
+		  	}} className="card-footer-item">Info</Link>
+		    <a href="#" className="card-footer-item">Edit</a>
+		    <span className="card-footer-item" style={{ cursor: "pointer", color: "red" }} onClick={() => props.deleteEntity(props.data.id)}>Delete</span>
+		  </footer>
+		</div>
+	)
 
-		this.infoModal = this.infoModal.bind(this)
-	}
-
-	infoModal() {
-		// let modal = Object.assign({}, this.state.modal)
-		// modal.show = true
-		// modal.component = <EntityInfo 
-		// 	closeModal = {this.closeModal}
-		// 	data={this.props.data}
-		// />
-		// this.setState({
-		// 	modal
-		// })
-	}
-
-	closeModal() {
-		let modal = Object.assign({}, this.state.modal)
-		modal.show = false
-		modal.component = null
-		this.setState({
-			modal
-		})
-	}
-
-	render() {
-		let props = this.props
-		return (
-			<div className="card">
-			  <header className="card-header">
-			    <p className="card-header-title">
-			      {props.data.type}
-			    </p>
-			    <a href="#" className="card-header-icon" aria-label="more options">
-			      <span className="icon">
-			        <i className="fas fa-angle-down" aria-hidden="true"></i>
-			      </span>
-			    </a>
-			  </header>
-			  <div className="card-content">
-			    <div className="content">
-			      <p>{props.data.name}</p>
-			      <br />
-			      <time dateTime="2016-1-1">11:09 PM - 1 Jan 2016</time>
-			    </div>
-			  </div>
-			  <footer className="card-footer">
-			  	<span style={{ cursor: "pointer", color: "blue" }} onClick={this.infoModal(props.data)} className="card-footer-item">Info</span>
-			    <a href="#" className="card-footer-item">Edit</a>
-			    <span className="card-footer-item" style={{ cursor: "pointer", color: "red" }} onClick={() => props.deleteEntity(props.data.id)}>Delete</span>
-			  </footer>
-			</div>
-		)
-	}
-	
 }
 
 class browseContainerComponent extends Component {

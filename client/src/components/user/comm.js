@@ -9,6 +9,28 @@ import SelectedPost from './forum/selectedPost'
 
 // rendering post
 
+function CreatePostForm (props) {
+	return (
+		<form>
+			<div className="control">
+				<label className="label">PostTitle</label>
+				<div className="field">
+					<input type="text" className="input" placeholder="title of your post" />
+				</div>
+			</div>
+
+			<div className="control">
+				<label className="label">Content</label>
+				<div className="field">
+					<textarea placeholder="content of the post"></textarea>
+				</div>
+			</div>
+
+			<button className="button" onClick={this.createPost}>create post</button>
+		</form>
+	)
+}
+
 class Comm extends Component {
 	constructor(props) {
 		super(props)
@@ -17,7 +39,7 @@ class Comm extends Component {
 			selected: "all",
 			selectedPost: null,
 			posts: [],
-			loading: true
+			loading: true,
 		}
 
 		this.toggleSelected = this.toggleSelected.bind(this)
@@ -25,8 +47,73 @@ class Comm extends Component {
 	}
 
 	selectPost (post) {
+		//the state is updated in infinity loop. diagnose if t
 		this.setState({
 			selectedPost: post
+		})
+	}
+
+	async createPost(e) {
+		e.preventDefault()
+		let query = `
+			mutation {
+				createPost(token: "`+ sessionStorage.token +`", title: "`+ this.state.title +`", content: "`+ this.state.content +`") {
+					id,
+					title,
+					content,
+					editable,
+					comments{
+						comments{
+							id
+							user{
+								username
+							}
+							content
+						}
+					}
+					votes
+				}
+			}
+		`
+		await axios({
+			url: "http://localhost:4000/api",
+			method: "post",
+			data: {
+				query
+			}
+		}).then(({data}) => {
+			data = data.data.createPost
+
+			// update stack
+			let posts = this.state.posts
+			posts.push(data)
+			this.setState({
+				posts
+			})
+		})
+	}
+
+	async createComment(data) {
+		let query = `
+			createComment(token, content, postId, parentId) {
+				id
+				content
+				postId
+				parentId
+			}
+		`
+
+		await axios({
+			url: "http://localhost:4000/api",
+			method: "post",
+			data: {
+				query
+			}
+		}).then(({data}) => {
+			data = data.data.createComment
+
+			let post = this.state.posts.filter(({id}) => { return id === data.postId })
+			let comments = post.comments
 		})
 	}
 
@@ -100,6 +187,7 @@ class Comm extends Component {
 		if (this.state.selectedPost !== null) {
 			selectedPost = <SelectedPost post={this.state.selectedPost} />
 		}
+		
 		return (
 			<div>
 				<Bar constrained />

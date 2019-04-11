@@ -8,6 +8,7 @@ import Profile from './user/Profile'
 import Comm from './user/comm'
 import Trips from './user/trips'
 import browseContainer from './Container/browse'
+import EntityInfo from './Container/entityInfo'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -61,6 +62,7 @@ class App extends Component {
 				<Route path="/user/trips" component={Trips} />
 				<Route path='/home' component={Comm} />
 				<Route path="/container" component={browseContainer} />
+				<Route path="/entity" component={EntityInfo} />
 			</div>
 		)
 	}

@@ -19,7 +19,9 @@ class Trips extends Component {
 			searching: false,
 			inherit: null,
 			containers: null,
-			loading: true
+			loading: true,
+			reload: false,
+			currentRoute: "/user/trips"
 		}
 
 		this.toggleSelected = this.toggleSelected.bind(this)
@@ -55,8 +57,8 @@ class Trips extends Component {
 				query
 			}
 		}).then(({data}) => {
-			this.setState(prevState => {
-				containers: prevState.containers.filter(({id}) => {return id !== cid})
+			this.setState({
+				reload: true
 			})
 		})
 	}
@@ -117,6 +119,11 @@ class Trips extends Component {
 	}
 
 	render() {
+
+		if(this.state.reload === true) {
+				return (<Redirect to="/login" />)
+		}
+
 		let searchComponent
 		let containerSpace
 
@@ -138,6 +145,7 @@ class Trips extends Component {
 		}
 
 		return (
+
 			<div className="container">
 				<Bar />
 				<hr/>

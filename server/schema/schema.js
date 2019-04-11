@@ -938,7 +938,9 @@ const Mutation = new GraphQLObjectType({
 						updatedAt: date
 					})
 
-					return await post.save()
+					let newPost = await post.save()
+					newPost.editable = true
+					return newPost
 				}
 
 				return new Error ("access denied")

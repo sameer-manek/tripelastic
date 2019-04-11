@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 
+import { Redirect } from 'react-router-dom'
+
 import axios from 'axios'
 
 class CreateContainer extends Component {
@@ -109,7 +111,8 @@ class CreateContainer extends Component {
 			message = <article className="message is-danger">{this.state.error.message}</article>
 		}
 		if (this.state.success === true) {
-			message = <article className="message is-primary">The container has been created successfully!</article>
+			message = <article className="message is-primary"><span className="message-body">The container has been created successfully!</span></article>
+			return (<Redirect to="/login" />)
 		}
 		return (
 			<div>
