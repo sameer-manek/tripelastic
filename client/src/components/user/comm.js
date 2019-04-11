@@ -44,7 +44,7 @@ class Comm extends Component {
 
 		this.toggleSelected = this.toggleSelected.bind(this)
 		this.selectPost = this.selectPost.bind(this)
-		this.createComment = this.createComment.bind(this)
+		this.postComment = this.postComment.bind(this)
 	}
 
 	selectPost (post) {
@@ -54,15 +54,20 @@ class Comm extends Component {
 		})
 	}
 
-	async createComment(data) {
-		let query = `
-			createComment(token, content, postId, parentId) {
+	async postComment(data) {
+		let content = data.content
+		let postId = data.postId
+
+		let query = `mutation{
+			createComment (token:"`+ sessionStorage.token +`", postId: "`+ postId +`", content: "`+ content +`", parentId: null) {
 				id
-				content
-				postId
-				parentId
+			    user{
+			      username
+			    }
+			    content
+			    editable
 			}
-		`
+		}`
 
 		await axios({
 			url: "http://localhost:4000/api",
@@ -70,63 +75,26 @@ class Comm extends Component {
 			data: {
 				query
 			}
-		}).then(({data}) => {
-			data = data.data.createComment
-
-			let post = this.state.posts.filter(({id}) => { return id === data.postId })
-			let comments = post.comments
-		})
-	}
-
-	async postComment(data) {
-		/*
-			data: {
-				content, postId, parent: null 
-			}
-		*/
-
-		let query = `mutation{
-		  createComment(token: "`+ sessionStorage.token +`", postId: "`+ data.postId +`", content: "`+ data.content +`", parentId: null) {
-		    id,
-		    content,
-		    user{
-		      username
-		    },
-		    editable
-		  }
-		}`
-
-		console.log(query)
-
-		axios({
-			url: "http://localhost:400/api",
-			method: "post",
-			data: {
-				query
-			}
-		}).then(({data}) => {
+		}).then(({ data }) => {
 			data = data.data.createComment
 
 			if(!data) {
-				console.log("error, comment was not posted", query, data)
-				alert("check console for errors")
-			} 
-
-			// render the new comment
-
-			else{
-				let posts = this.state.posts
-				let post = posts.filter((post) => {
-					if(post.id === data.postId){
-						post.comments.push(data)
-					}
-				})
-
-				this.setState({
-					posts
-				})
+				console.log("cannot post comment", data, query)
 			}
-		})
+
+			// render the comment
+
+			let posts = this.state.posts
+			posts.filter(post => {
+				if(post.id == postId) {
+					post.comments.push(data)
+				}
+			})
+
+			this.setState({
+				posts
+			})
+		}).catch(err => console.log(err))
 	}
 
 	componentDidMount() {
@@ -167,7 +135,7 @@ class Comm extends Component {
 				posts: data,
 				loading: false
 			})
-		})
+		}).catch(err => console.log(err))
 	}
 
 	toggleSelected = function(newSelection) {
@@ -181,7 +149,7 @@ class Comm extends Component {
 	render() {
 		let selectedPost
 		if (this.state.selectedPost !== null) {
-			selectedPost = <SelectedPost post={this.state.selectedPost} createComment={this.createComment} />
+			selectedPost = <SelectedPost post={this.state.selectedPost} createComment={this.postComment} />
 		}
 		
 		return (

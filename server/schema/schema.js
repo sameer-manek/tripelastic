@@ -1054,7 +1054,10 @@ const Mutation = new GraphQLObjectType({
 						updatedAt: date
 					})
 
-					return await comment.save()
+					let newComment = await comment.save()
+					comment.editable = true
+
+					return comment
 				}
 
 				return new Error ("Access Denied!")
