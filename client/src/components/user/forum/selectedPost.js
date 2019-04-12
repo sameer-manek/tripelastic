@@ -12,12 +12,23 @@ class CommentFormComponent extends Component {
 		}
 
 		this.changeContentEvent = this.changeContentEvent.bind(this)
+		this.sendRequest = this.sendRequest.bind(this)
 	}
 
 	changeContentEvent(e) {
 		this.setState({
 			content: e.target.value
 		})
+	}
+
+	async sendRequest(e) {
+		e.preventDefault()
+
+		this.setState({
+			content: ""
+		})
+
+		this.props.postComment({ content: this.state.content, postId: this.props.postId })
 	}
 
 	render() {
@@ -30,7 +41,7 @@ class CommentFormComponent extends Component {
 				</div>
 				<div className="control" style={{ marginTop: "10px" }}>
 					<div className="field">
-						<button className="button is-info" onClick={() => this.props.postComment({ content: this.state.content, postId: this.props.postId })}>Post</button>
+						<button className="button is-info" onClick={ this.sendRequest }>Post</button>
 					</div>
 				</div>
 			</div>
@@ -48,9 +59,9 @@ class SelectedPost extends Component {
 	}
 
 	render() {
-		let buttons
+		let buttons, content
 		if(this.props.post.editable){
-			buttons = (<span className="level-right"><button className="button has-icon" style={{ borderColor: "red" }}>
+			buttons = (<span className="level-right"><button className="button has-icon" style={{ borderColor: "red" }} onClick={() => this.props.deletePost(this.props.post.id)}>
 					<i className="icon lnr lnr-trash" style={{ color: "red" }}></i>
 				</button>
 				&nbsp;
@@ -81,8 +92,13 @@ class SelectedPost extends Component {
 						</span>
 						<hr/>
 						<p className="menu-label">Comments</p>
-						{this.props.post.comments.map(comment => <Comment key={comment.id} data={comment} />)}
-						<CommentFormComponent postComment={this.props.createComment} postId={this.state.post.id} />
+						{this.props.post.comments.map(comment => <Comment 
+							key={comment.id} 
+							data={comment} 
+							deleteComment={this.props.deleteComment}
+							updateComment={this.props.updateComment}
+						/>)}
+						<CommentFormComponent postComment={this.props.createComment} postId={this.props.post.id} />
 					</div>
 				</div>
 			</div>

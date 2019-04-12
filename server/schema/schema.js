@@ -1084,7 +1084,7 @@ const Mutation = new GraphQLObjectType({
 
 				if (user && comment && user.id.toString() === comment.userId.toString()) {
 					comment.content = args.content
-
+					await comment.save()
 					return {
 						success: true,
 						message: "comment has been updated"
@@ -1116,7 +1116,7 @@ const Mutation = new GraphQLObjectType({
 				let comment = await Comment.findById(args.id)
 
 				if (user && comment && user.id.toString() === comment.userId.toString()) {
-					let comments = Comment.find({ parentId: comment._id })
+					let comments = await Comment.find({ parentId: comment.id })
 					await comments.map(child => {child.remove()})
 					await comment.remove()
 

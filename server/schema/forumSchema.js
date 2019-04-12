@@ -81,7 +81,9 @@ const CommentType = new GraphQLObjectType({
 			}
 		},
 		votes: { type: GraphQLInt },
-		editable: { type: GraphQLBoolean }
+		editable: { 
+			type: GraphQLBoolean
+		}
 	})
 })
 
