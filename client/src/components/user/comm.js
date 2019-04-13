@@ -21,7 +21,6 @@ class CreatePostForm extends Component {
 
 		this.changeTitleEvent = this.changeTitleEvent.bind(this)
 		this.changeContentEvent = this.changeContentEvent.bind(this)
-		this.deletePost = this.deletePost.bind(this)
 	}
 
 	changeTitleEvent(e) {
@@ -404,7 +403,8 @@ class Comm extends Component {
 				createComment={this.postComment} 
 				deleteComment={this.deleteComment}
 				updateComment={this.updateComment}
-				deletePost={this.deletePost} 
+				deletePost={this.deletePost}
+				updatePost={this.updatePost}
 				/> )
 		}
 

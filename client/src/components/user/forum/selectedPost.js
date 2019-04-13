@@ -54,19 +54,106 @@ class SelectedPost extends Component {
 		super(props)
 
 		this.state = {
-			post: this.props.post
+			post: this.props.post,
+			newTitle: this.props.post.title,
+			newContent: this.props.post.content,
+			mode: "view"
+		}
+
+		this.changeMode = this.changeMode.bind(this)
+		this.changeTitleEvent = this.changeTitleEvent.bind(this)
+		this.changeContentEvent = this.changeContentEvent.bind(this)
+		this.sendRequest = this.sendRequest.bind(this)
+	}
+
+	componentWillReceiveProps(newProps) {
+		this.setState({
+			post: newProps.post,
+			newTitle: newProps.post.title,
+			newContent: newProps.post.content,
+			mode: "view"
+		})
+	}
+
+	changeMode() {
+		if(this.state.mode === "edit") {
+			this.setState({
+				newTitle: this.props.post.title,
+				newContent: this.props.post.content,
+				mode: "view"
+			})
+		}
+
+		else {
+			this.setState({
+				mode: "edit"
+			})
 		}
 	}
 
+	changeTitleEvent(e) {
+		this.setState({
+			newTitle: e.target.value
+		})
+	}
+
+	changeContentEvent(e) {
+		this.setState({
+			newContent: e.target.value
+		})
+	}
+
+	async sendRequest() {
+		await this.props.updatePost({
+			id: this.state.post.id,
+			title: this.state.newTitle,
+			content: this.state.newContent
+		})
+
+		let post = this.state.post
+		post.title = this.state.newTitle
+		post.content = this.state.newContent
+
+		this.setState({
+			post
+		})
+	}
+
 	render() {
-		let buttons, content
+		let buttons, content, icon
+		content = (<span><p><b>{this.state.post.title}</b></p>
+			<p>{this.state.post.content}</p></span>)
 		if(this.props.post.editable){
+			icon = <i className="icon lnr lnr-pencil" style={{ color: "blue" }}></i>
+			if(this.state.mode === "edit") {
+				icon = <i className="icon lnr lnr-cross-circle" style={{ color: "blue" }}></i>
+				content = (<form>
+					<div className="control">
+						<label className="label">Title</label>
+						<div className="field">
+							<input type="text" className="input" placeholder="title for the post" defaultValue={this.state.newTitle} onChange={this.changeTitleEvent} />
+						</div>
+					</div>
+					<div className="control">
+						<label className="label">Content</label>
+						<div className="field">
+							<textarea type="text" className="textarea input" placeholder="post content" defaultValue={this.state.newContent} onChange={this.changeContentEvent}></textarea>
+						</div>
+					</div>
+					<div className="control" style={{marginTop: "10px"}}>
+						<div className="field">
+							<button type="button" className="button is-info" onClick={this.sendRequest}>Update post</button>
+						</div>
+					</div>
+				</form>)
+			}
+
 			buttons = (<span className="level-right"><button className="button has-icon" style={{ borderColor: "red" }} onClick={() => this.props.deletePost(this.props.post.id)}>
 					<i className="icon lnr lnr-trash" style={{ color: "red" }}></i>
 				</button>
 				&nbsp;
-				<button className="button has-icon" style={{ borderColor: "blue" }}>
-					<i className="icon lnr lnr-pencil" style={{ color: "blue" }}></i>
+				<button className="button has-icon" style={{ borderColor: "blue" }} onClick={this.changeMode}>
+					{icon}
 				</button></span>)
 		}
 		return (
@@ -78,8 +165,7 @@ class SelectedPost extends Component {
 					</div>
 					<br/>
 					<div className="body">
-						<p className="subtitle">{this.props.post.title}</p>
-						<p>{this.props.post.content}</p>
+						{content}
 						<hr/>
 						<span className="level">
 							<span className="level-left">
