@@ -20,12 +20,10 @@ class Trips extends Component {
 			inherit: null,
 			containers: null,
 			loading: true,
-			reload: false,
 			currentRoute: "/user/trips"
 		}
 
 		this.toggleSelected = this.toggleSelected.bind(this)
-		this.handleSearchEvent = this.handleSearchEvent.bind(this)
 		this.deleteContainer = this.deleteContainer.bind(this)
 		this.fetchContainers = this.fetchContainers.bind(this)
 	}
@@ -57,24 +55,14 @@ class Trips extends Component {
 				query
 			}
 		}).then(({data}) => {
-			this.setState({
-				reload: true
+			let containers = this.state.containers
+			containers = containers.filter(container => {
+				return container.id !== cid
 			})
-		})
-	}
 
-	handleSearchEvent = function (e) {
-		console.log("searching..")
-		this.setState({
-			searching: true
-		})
-		if (e.target.value !== this.state.search) {
 			this.setState({
-				search: e.target.value
+				containers
 			})
-		}
-		this.setState({
-			searching: false
 		})
 	}
 
@@ -119,11 +107,6 @@ class Trips extends Component {
 	}
 
 	render() {
-
-		if(this.state.reload === true) {
-				return (<Redirect to="/login" />)
-		}
-
 		let searchComponent
 		let containerSpace
 

@@ -616,16 +616,10 @@ const Mutation = new GraphQLObjectType({
 			args: {
 				token: { type: new GraphQLNonNull(GraphQLString) },
 				type: { type: new GraphQLNonNull(GraphQLString) },
-				pickupAddress: { type: new GraphQLNonNull(GraphQLString) },
-				pickupCity: { type: new GraphQLNonNull(GraphQLString) },
-				pickupCountry: { type: new GraphQLNonNull(GraphQLString) },
-				pickupPincode: { type: GraphQLString },
-				pickupLocation: { type: GraphQLString },
-				dropAddress: { type: new GraphQLNonNull(GraphQLString) },
-				dropCity: { type: new GraphQLNonNull(GraphQLString) },
-				dropCountry: { type: new GraphQLNonNull(GraphQLString) },
-				dropPincode: { type: GraphQLString },
-				dropLocation: { type: GraphQLString },
+				pickup: { type: new GraphQLNonNull(GraphQLString) },
+				p_address: { type: GraphQLString },
+				drop: { type: new GraphQLNonNull(GraphQLString) },
+				d_address: { type: GraphQLString },
 				seat: { type: GraphQLString },
 				vehicleId: { type: GraphQLString },
 				bookingId: { type: GraphQLString }
@@ -637,16 +631,10 @@ const Mutation = new GraphQLObjectType({
 					let transport = new Transport({
 						type: args.type,
 						userId: data.id,
-						pickupAddress: args.pickupAddress,
-						pickupCity: args.pickupCity,
-						pickupCountry: args.pickupCountry,
-						pickupPincode: args.pickupPincode === "null" ? null : args.pickupPincode,
-						pickupLocation: args.pickupLocation,
-						dropAddress: args.dropAddress,
-						dropCity: args.dropCity,
-						dropCountry: args.dropCountry,
-						dropPincode: args.dropPincode === "null" ? null : args.dropPincode,
-						dropLocation: args.dropLocation,
+						pickup: args.pickup,
+						drop: args.drop,
+						p_address: args.p_address,
+						d_address: args.d_address,
 						seat: args.seat,
 						vehicleId: args.vehicleId,
 						bookingId: args.bookingId
@@ -784,16 +772,12 @@ const Mutation = new GraphQLObjectType({
 				token: { type: new GraphQLNonNull(GraphQLString) },
 				id: { type: new GraphQLNonNull(GraphQLID) },
 				type: { type: new GraphQLNonNull(GraphQLString) },
-				pickupAddress: { type: GraphQLString },
-				pickupCity: { type: GraphQLString },
-				pickupCountry: { type: GraphQLString },
-				pickupPincode: { type: GraphQLString },
-				pickupLocation: { type: GraphQLString },
-				dropAddress: { type: GraphQLString },
-				dropCity: { type: GraphQLString },
-				dropCountry: { type: GraphQLString },
-				dropPincode: { type: GraphQLString },
-				dropLocation: { type: GraphQLString },
+				pickup: { type: new GraphQLNonNull(GraphQLString) },
+				p_address: { type: GraphQLString },
+				drop: { type: new GraphQLNonNull(GraphQLString) },
+				d_address: { type: GraphQLString },
+				vehicleId: { type: GraphQLString },
+				bookingId: { type: GraphQLString },
 				seat: { type: GraphQLString },
 			},
 			resolve: async function (parent, args) {
@@ -811,16 +795,12 @@ const Mutation = new GraphQLObjectType({
 				if(user && transport && transport.userId === user.id) {
 					// update transport
 					transport.type = args.type ? args.type : transport.type
-					transport.pickupAddress = args.pickupAddress ? args.pickupAddress : transport.pickupAddress
-					transport.pickupCity = args.pickupCity ? args.pickupCity : transport.pickupCity
-					transport.pickupCountry = args.pickupCountry ? args.pickupCountry : transport.pickupCountry
-					transport.pickupPincode = args.pickupPincode ? args.pickupPincode : transport.pickupPincode
-					transport.pickupLocation = args.pickupLocation ? args.pickupLocation : transport.pickupLocation
-					transport.dropAddress = args.dropAddress ? args.dropAddress : transport.dropAddress
-					transport.dropCity = args.dropCity ? args.dropCity : transport.dropCity
-					transport.dropCountry = args.dropCountry ? args.dropCountry : transport.dropCountry
-					transport.dropPincode = args.dropPincode ? args.dropPincode : transport.dropPincode
-					transport.dropLocation = args.dropLocation ? args.dropLocation : transport.dropLocation
+					transport.pickup = args.pickup ? args.pickup : transport.pickup
+					transport.drop = args.drop ? args.drop : transport.drop
+					transport.p_address = args.p_address ? args.p_address : transport.p_address
+					transport.d_address = args.d_address ? args.d_address : transport.d_address
+					transport.vehicleId = args.vehicleId ? args.vehicleId : transport.vehicleId
+					transport.bookingId = args.bookingId ? args.bookingId : transport.bookingId
 					transport.seat = args.seat ? args.seat : transport.seat
 
 					await transport.save()

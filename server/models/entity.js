@@ -9,7 +9,8 @@ const entitySchema = new Schema ({
 	type: { type: String, required: true },
 	detail: { type: ObjectId },
 	start: { type: Date },
-	end: { type: Date }
+	end: { type: Date },
+	cost: { type: Number, required: false }
 }) 
 
 module.exports = mongoose.model("Entity", entitySchema)

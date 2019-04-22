@@ -39,7 +39,7 @@ class Container extends Component {
 	}
 
 	render() {
-		let option = this.props.data.category === "trip" ? "duplicate" : "inherit"
+		let option = this.props.data.category === "trip" ? "Duplicate" : "Inherit"
 		return (
 			<div className="card" style={this.marginStyle}>
 				<header className="card-header">
@@ -68,8 +68,8 @@ class Container extends Component {
 							url: "/user/trips"
 						}
 					}} className="card-footer-item">Browse</Link>
-					<Link to="/editcontainer" className="card-footer-item">Edit</Link>
-					<button onClick={this.duplicateContainer} style={{ background: "transparent", border: "0", color: "blue", cursor: "pointer" }} className=" link card-footer-item">{option}</button> 
+					
+					<button onClick={this.duplicateContainer} style={{ background: "transparent", border: "0", color: "black", cursor: "pointer", fontSize: "14px" }} className=" link card-footer-item">{option}</button> 
 				</footer>
 			</div>
 		)

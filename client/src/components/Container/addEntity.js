@@ -17,16 +17,8 @@ class AddEntityModal extends Component {
 			end: new Date(),
 			transport: {
 				type: "plane",
-				pickupAddress: "",
-				pickupCity: "",
-				pickupCountry: "",
-				pickupPincode: null,
-				pickupLocation: "",
-				pickupAddress: "",
-				pickupCity: "",
-				pickupCountry: "",
-				pickupPincode: null,
-				pickupLocation: "",
+				pickup: "",
+				drop: "",
 				bookingId: "",
 				seat: "",
 				vehicleId: ""
@@ -152,62 +144,14 @@ class AddEntityModal extends Component {
 					transport
 				})
 			break
-			case "pickupAddress":
-				transport.pickupAddress = e.target.value
+			case "pickup":
+				transport.pickup = e.target.value
 				this.setState({
 					transport
 				})
 			break
-			case "pickupCity":
-				transport.pickupCity = e.target.value
-				this.setState({
-					transport
-				})
-			break
-			case "pickupCountry":
-				transport.pickupCountry = e.target.value
-				this.setState({
-					transport
-				})
-			break
-			case "pickupPincode":
-				transport.pickupPincode = e.target.value
-				this.setState({
-					transport
-				})
-			break
-			case "pickupLocation":
-				transport.pickupLocation = e.target.value
-				this.setState({
-					transport
-				})
-			break
-			case "dropAddress":
-				transport.dropAddress = e.target.value
-				this.setState({
-					transport
-				})
-			break
-			case "dropCity":
-				transport.dropCity = e.target.value
-				this.setState({
-					transport
-				})
-			break
-			case "dropCountry":
-				transport.dropCountry = e.target.value
-				this.setState({
-					transport
-				})
-			break
-			case "dropPincode":
-				transport.dropPincode = e.target.value
-				this.setState({
-					transport
-				})
-			break
-			case "dropLocation":
-				transport.dropLocation = e.target.value
+			case "drop":
+				transport.drop = e.target.value
 				this.setState({
 					transport
 				})
@@ -289,7 +233,7 @@ class AddEntityModal extends Component {
 		}`
 
 		let transportQuery = `mutation {
-		  createTransport(token: "`+ sessionStorage.token +`", type: "`+ state.transport.type +`", pickupAddress: "`+ state.transport.pickupAddress +`", pickupCity: "`+ state.transport.pickupCity +`", pickupCountry: "`+ state.transport.pickupCountry +`", pickupPincode: "`+ state.transport.pickupPincode +`", pickupLocation: "`+ state.transport.pickupLocation +`", dropAddress: "`+ state.transport.dropAddress +`", dropCity: "`+ state.transport.dropCity +`", dropCountry: "`+ state.transport.dropCountry +`", dropPincode: "`+ state.transport.dropPincode +`", dropLocation: "`+ state.transport.dropLocation +`", seat: "`+ state.transport.seat +`", bookingId: "`+ state.transport.bookingId +`", vehicleId: "`+ state.transport.vehicleId +`") {
+		  createTransport(token: "`+ sessionStorage.token +`", type: "`+ state.transport.type +`", pickup: "`+ state.transport.pickup +`", drop: "`+ state.transport.drop +`", seat: "`+ state.transport.seat +`", bookingId: "`+ state.transport.bookingId +`", vehicleId: "`+ state.transport.vehicleId +`") {
 		    id
 		  }
 		}`
@@ -428,83 +372,18 @@ class AddEntityModal extends Component {
 							</div>
 							<br/>
 						</div>
-						<p className="menu-label">transport pickup details</p>
+						<p className="menu-label">Transport details</p>
 						<div className="control">
-							<label className="label">*pickup address</label>
+							<label className="label">pickup city</label>
 							<div className="field">
-								<input type="text" className="input" id="pickupAddress" onChange={this.handleTransportInput}/>
+								<input type="text" className="input" id="pickup" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
-
 						<div className="control">
-							<label className="label">*pickup city</label>
+							<label className="label">drop city</label>
 							<div className="field">
-								<input type="text" className="input" id="pickupCity" onChange={this.handleTransportInput} />
-							</div>
-						</div>
-						<br/>
-
-						<div className="control">
-							<label className="label">*pickup country</label>
-							<div className="field">
-								<input type="text" className="input" id="pickupCountry" onChange={this.handleTransportInput} />
-							</div>
-						</div>
-						<br/>
-
-						<div className="control">
-							<label className="label">pickup pincode</label>
-							<div className="field">
-								<input type="text" className="input" id="pickupPincode" onChange={this.handleTransportInput} />
-							</div>
-						</div>
-						<br/>
-
-						<div className="control">
-							<label className="label">pickup location (google maps link)</label>
-							<div className="field">
-								<input type="text" className="input" id="pickupLocation" onChange={this.handleTransportInput} />
-							</div>
-						</div>
-						<br/>
-						<p className="menu-label">transport drop details</p>
-						<div className="control">
-							<label className="label">*drop address</label>
-							<div className="field">
-								<input type="text" className="input" id="dropAddress" onChange={this.handleTransportInput} />
-							</div>
-						</div>
-						<br/>
-
-						<div className="control">
-							<label className="label">*drop city</label>
-							<div className="field">
-								<input type="text" className="input" id="dropCity" onChange={this.handleTransportInput} />
-							</div>
-						</div>
-						<br/>
-
-						<div className="control">
-							<label className="label">*drop country</label>
-							<div className="field">
-								<input type="text" className="input" id="dropCountry" onChange={this.handleTransportInput} />
-							</div>
-						</div>
-						<br/>
-
-						<div className="control">
-							<label className="label">drop pincode</label>
-							<div className="field">
-								<input type="text" className="input" id="dropPincode" onChange={this.handleTransportInput} />
-							</div>
-						</div>
-						<br/>
-
-						<div className="control">
-							<label className="label">drop location (google maps link)</label>
-							<div className="field">
-								<input type="text" className="input" id="dropLocation" onChange={this.handleTransportInput} />
+								<input type="text" className="input" id="drop" onChange={this.handleTransportInput} />
 							</div>
 						</div>
 						<br/>
